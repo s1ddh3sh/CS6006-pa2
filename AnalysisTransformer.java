@@ -37,12 +37,10 @@ public class AnalysisTransformer extends BodyTransformer {
         Map<Local, Set<AbsObj>> stack;
         Map<AbsObj, Map<SootField, Set<AbsObj>>> heap;
 
-        Map<String, Local> available;
 
         State() {
             stack = new HashMap<>();
             heap  = new HashMap<>();
-            available = new HashMap<>();
 
         }
         State deepCopy() {
@@ -72,7 +70,6 @@ public class AnalysisTransformer extends BodyTransformer {
                     copy.heap.put(objEntry.getKey(), newFieldMap);
                 }
             }
-            copy.available.putAll(this.available);
 
 
             return copy;
@@ -132,25 +129,6 @@ public class AnalysisTransformer extends BodyTransformer {
                 }
             }
 
-            sb.append("AVAILABLE:\n");
-            if (available.isEmpty()) {
-                sb.append("  <empty>\n");
-            } else {
-                for (Map.Entry<String, Local> e : available.entrySet()) {
-                    sb.append("  ")
-                    .append(e.getKey())    
-                    .append(" -> ")
-                    .append(e.getValue()) 
-                    .append("\n");
-                }
-            }
-            // if (available.isEmpty()) {
-            //     sb.append("  <empty>\n");
-            // } else {
-            //     for (String a : available) {
-            //         sb.append("  ").append(a).append("\n");
-            //     }
-            // }
             return sb.toString();
         }
     }
@@ -182,22 +160,11 @@ public class AnalysisTransformer extends BodyTransformer {
 
         }
 
-        for (Map.Entry<String, Local> e : pre.available.entrySet()) {
-            String key = e.getKey();
-            Local incoming = e.getValue();
-
-            Local existing = target.available.get(key);
-
-            if (existing == null) {
-                target.available.put(key, incoming);
-                changed = true;
-            }
-        }
         return changed;
     }
 
     boolean stateEquals(State a, State b) {
-        return a.stack.equals(b.stack) && a.heap.equals(b.heap) && a.available.equals(b.available);
+        return a.stack.equals(b.stack) && a.heap.equals(b.heap);
     }
 
     AbsObj getAbsObj(Unit u) {
@@ -206,8 +173,10 @@ public class AnalysisTransformer extends BodyTransformer {
 
     State dataFlow(Unit u, State in) {
         State out = in.deepCopy();
-        if (u instanceof InvokeStmt) {
-            out.available.clear();
+        if (u instanceof InvokeStmt || (u instanceof AssignStmt && ((AssignStmt) u).getRightOp() instanceof InvokeExpr)) {
+
+            out.heap.clear();
+            return out;
         }
         if(u instanceof AssignStmt) {
             AssignStmt as = (AssignStmt) u;
@@ -259,16 +228,7 @@ public class AnalysisTransformer extends BodyTransformer {
                     }
                 }
                 out.stack.put(x, result);
-                // if(!result.isEmpty()) {
-                    for (AbsObj obj : base_st) {
-                        String key = obj.toString() + "." + field.getName();
-                        out.available.putIfAbsent(key, x);
-                    }
-
-                // }
-            }
-            else if (u instanceof InvokeStmt || rhs instanceof InvokeExpr) {
-                out.available.clear();   // conservative kill
+                
             }
             //x.f = y
             else if(lhs instanceof InstanceFieldRef && rhs instanceof Local) {
@@ -293,19 +253,7 @@ public class AnalysisTransformer extends BodyTransformer {
                     else
                         fieldSet.addAll(y_st);
                 }
-                Set<String> toRemove = new HashSet<>();
-
-                for (String a : out.available.keySet()) {
-                    for (AbsObj obj : base_st) {
-                        String prefix = obj.toString() + "." + field.getName();
-                        if (a.equals(prefix)) {
-                            toRemove.add(a);
-                        }
-                    }
-                }
-
-                for (String k : toRemove)
-                    out.available.remove(k);
+                
 
             }
             // x.f = const
@@ -328,10 +276,7 @@ public class AnalysisTransformer extends BodyTransformer {
                     fmap.put(field, primVal);
                 }
 
-                for (AbsObj obj : base_st) {
-                    String key = obj.toString() + "." + field.getName();
-                    out.available.remove(key);
-                }
+                
             }
 
         }
@@ -368,32 +313,23 @@ public class AnalysisTransformer extends BodyTransformer {
             }
         }
 
-        // if(loaded.isEmpty()) return null;
+        if(loaded.isEmpty()) return null;
         
         Local replaceVar = null;
 
-        for (AbsObj obj : base_st) {
-            Map<SootField, Set<AbsObj>> fmap = in.heap.get(obj);
-            if (fmap == null) continue;
+        for (Map.Entry<Local, Set<AbsObj>> e : in.stack.entrySet()) {
+            Local v = e.getKey();
 
-            for (Map.Entry<SootField, Set<AbsObj>> e : fmap.entrySet()) {
-                SootField otherField = e.getKey();
-                Set<AbsObj> otherVal = e.getValue();
+            if (v.equals(x)) continue;
+            if (v.getName().startsWith("$")) continue;
 
-                if (!otherVal.equals(loaded))
-                    continue;   // not value-equivalent
-
-                String key = obj.toString() + "." + otherField.getName();
-
-                if (in.available.containsKey(key)) {
-                    replaceVar = in.available.get(key);  
-                    break;
-                }
+            if (e.getValue().equals(loaded)) {
+                replaceVar = v;
+                break;
             }
-            if (replaceVar != null) break;
         }
 
-        if (replaceVar == null || replaceVar.equals(x)) return null;
+        if (replaceVar == null) return null;
 
         String loadStr =
         base.getName() + ".<" +
@@ -454,22 +390,22 @@ public class AnalysisTransformer extends BodyTransformer {
             if (r != null) results.add(r);
         }
 
-        // if (!results.isEmpty()) {
-        //     System.out.println(
-        //         body.getMethod().getDeclaringClass().getName() + ":" +
-        //         body.getMethod().getName()
-        //     );
+        if (!results.isEmpty()) {
+            System.out.println(
+                body.getMethod().getDeclaringClass().getName() + ":" +
+                body.getMethod().getName()
+            );
 
-        //     for (String s : results)
-        //         System.out.println(s);
-        // }
-        for (Unit u : graph) { 
-            System.out.println("================================="); 
-            System.out.println("Unit: " + u); 
-            System.out.println("----------- IN -----------"); 
-            System.out.println(IN.get(u)); 
-            System.out.println("----------- OUT ----------");
-            System.out.println(OUT.get(u)); 
+            for (String s : results)
+                System.out.println(s);
         }
+        // for (Unit u : graph) { 
+        //     System.out.println("================================="); 
+        //     System.out.println("Unit: " + u); 
+        //     System.out.println("----------- IN -----------"); 
+        //     System.out.println(IN.get(u)); 
+        //     System.out.println("----------- OUT ----------");
+        //     System.out.println(OUT.get(u)); 
+        // }
     }
 }
