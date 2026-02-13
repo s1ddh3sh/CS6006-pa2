@@ -1,0 +1,416 @@
+Soot started on Sat Feb 14 04:54:04 IST 2026
+=================================
+Unit: r0 := @this: Test
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: specialinvoke r0.<java.lang.Object: void <init>()>()
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: return
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: r1 := @parameter0: java.lang.String[]
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: $r0 = new Test
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  $r0 -> { Obj-4 }
+HEAP:
+  Obj-4 -> {
+  }
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: specialinvoke $r0.<Test: void <init>()>()
+----------- IN -----------
+STACK:
+  $r0 -> { Obj-4 }
+HEAP:
+  Obj-4 -> {
+  }
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  $r0 -> { Obj-4 }
+HEAP:
+  Obj-4 -> {
+  }
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: $r0.<Test: int f1> = 10
+----------- IN -----------
+STACK:
+  $r0 -> { Obj-4 }
+HEAP:
+  Obj-4 -> {
+  }
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  $r0 -> { Obj-4 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: i0 = $r0.<Test: int f1>
+----------- IN -----------
+STACK:
+  $r0 -> { Obj-4 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  i0 -> { Obj-5 }
+  $r0 -> { Obj-4 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  Obj-4.f1 -> i0
+
+=================================
+Unit: i1 = $r0.<Test: int f1>
+----------- IN -----------
+STACK:
+  i0 -> { Obj-5 }
+  $r0 -> { Obj-4 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  Obj-4.f1 -> i0
+
+----------- OUT ----------
+STACK:
+  i0 -> { Obj-5 }
+  $r0 -> { Obj-4 }
+  i1 -> { Obj-5 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  Obj-4.f1 -> i0
+
+=================================
+Unit: virtualinvoke $r0.<Test: void foo()>()
+----------- IN -----------
+STACK:
+  i0 -> { Obj-5 }
+  $r0 -> { Obj-4 }
+  i1 -> { Obj-5 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  Obj-4.f1 -> i0
+
+----------- OUT ----------
+STACK:
+  i0 -> { Obj-5 }
+  $r0 -> { Obj-4 }
+  i1 -> { Obj-5 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: i2 = $r0.<Test: int f1>
+----------- IN -----------
+STACK:
+  i0 -> { Obj-5 }
+  $r0 -> { Obj-4 }
+  i1 -> { Obj-5 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  i0 -> { Obj-5 }
+  i2 -> { Obj-5 }
+  $r0 -> { Obj-4 }
+  i1 -> { Obj-5 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  Obj-4.f1 -> i2
+
+=================================
+Unit: return
+----------- IN -----------
+STACK:
+  i0 -> { Obj-5 }
+  i2 -> { Obj-5 }
+  $r0 -> { Obj-4 }
+  i1 -> { Obj-5 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  Obj-4.f1 -> i2
+
+----------- OUT ----------
+STACK:
+  i0 -> { Obj-5 }
+  i2 -> { Obj-5 }
+  $r0 -> { Obj-4 }
+  i1 -> { Obj-5 }
+HEAP:
+  Obj-4 -> {
+      f1 -> { Obj-5 }
+  }
+AVAILABLE:
+  Obj-4.f1 -> i2
+
+=================================
+Unit: r1 := @this: Test
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: $r0 = new Test
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+  }
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: specialinvoke $r0.<Test: void <init>()>()
+----------- IN -----------
+STACK:
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+  }
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+  }
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: $r0.<Test: int f1> = 20
+----------- IN -----------
+STACK:
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+  }
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+      f1 -> { Obj-14 }
+  }
+AVAILABLE:
+  <empty>
+
+=================================
+Unit: i0 = $r0.<Test: int f1>
+----------- IN -----------
+STACK:
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+      f1 -> { Obj-14 }
+  }
+AVAILABLE:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  i0 -> { Obj-14 }
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+      f1 -> { Obj-14 }
+  }
+AVAILABLE:
+  Obj-12.f1 -> i0
+
+=================================
+Unit: i1 = $r0.<Test: int f1>
+----------- IN -----------
+STACK:
+  i0 -> { Obj-14 }
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+      f1 -> { Obj-14 }
+  }
+AVAILABLE:
+  Obj-12.f1 -> i0
+
+----------- OUT ----------
+STACK:
+  i0 -> { Obj-14 }
+  i1 -> { Obj-14 }
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+      f1 -> { Obj-14 }
+  }
+AVAILABLE:
+  Obj-12.f1 -> i0
+
+=================================
+Unit: return
+----------- IN -----------
+STACK:
+  i0 -> { Obj-14 }
+  i1 -> { Obj-14 }
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+      f1 -> { Obj-14 }
+  }
+AVAILABLE:
+  Obj-12.f1 -> i0
+
+----------- OUT ----------
+STACK:
+  i0 -> { Obj-14 }
+  i1 -> { Obj-14 }
+  $r0 -> { Obj-12 }
+HEAP:
+  Obj-12 -> {
+      f1 -> { Obj-14 }
+  }
+AVAILABLE:
+  Obj-12.f1 -> i0
+
+Soot finished on Sat Feb 14 04:54:04 IST 2026
+Soot has run for 0 min. 0 sec.

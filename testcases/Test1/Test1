@@ -1,0 +1,3 @@
+Test:main
+16:r6 =r0.<Node: Node> f1 r5
+17:r7 =r0.<Node: Node> f2 r5
