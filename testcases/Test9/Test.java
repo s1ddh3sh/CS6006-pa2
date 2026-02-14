@@ -7,7 +7,7 @@ public class Test {
     Test b = a.f.f;
     Test c = a.f.f; // redundant?
   }
-  // public void foo(){
+  public void foo(){
 
-  // }
+  }
 }

@@ -103,7 +103,6 @@ public class AnalysisTransformer extends BodyTransformer {
         public String toString() {
             StringBuilder sb = new StringBuilder();
 
-            // -------- Stack --------
             sb.append("STACK:\n");
             if (stack.isEmpty()) {
                 sb.append("  <empty>\n");
@@ -124,7 +123,6 @@ public class AnalysisTransformer extends BodyTransformer {
                 }
             }
 
-            // -------- Heap --------
             sb.append("HEAP:\n");
             if (heap.isEmpty()) {
                 sb.append("  <empty>\n");
@@ -483,14 +481,14 @@ public class AnalysisTransformer extends BodyTransformer {
             allResults.get(key).addAll(results);
         }
 
-        for (Unit u : graph) { 
-                System.out.println("================================="); 
-                System.out.println("Unit: " + u); 
-                System.out.println("----------- IN -----------"); 
-                System.out.println(IN.get(u)); 
-                System.out.println("----------- OUT ----------");
-                System.out.println(OUT.get(u)); 
-            }
+        // for (Unit u : graph) { 
+        //         System.out.println("================================="); 
+        //         System.out.println("Unit: " + u); 
+        //         System.out.println("----------- IN -----------"); 
+        //         System.out.println(IN.get(u)); 
+        //         System.out.println("----------- OUT ----------");
+        //         System.out.println(OUT.get(u)); 
+        //     }
         }
     
 }
