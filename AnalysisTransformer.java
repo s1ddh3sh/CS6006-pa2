@@ -9,7 +9,25 @@ import soot.toolkits.scalar.BackwardFlowAnalysis;
 import soot.toolkits.scalar.FlowSet;
 
 public class AnalysisTransformer extends BodyTransformer {
+    static Map<String, List<String>> allResults = new TreeMap<>();
+    public static void printResults() {
 
+        for (String key : allResults.keySet()) {
+
+            System.out.println(key);
+
+            List<String> lines = allResults.get(key);
+
+            Collections.sort(lines, (a, b) -> {
+                int la = Integer.parseInt(a.split(":")[0]);
+                int lb = Integer.parseInt(b.split(":")[0]);
+                return Integer.compare(la, lb);
+            });
+
+            for (String l : lines)
+                System.out.println(l);
+        }
+    }
     class AbsObj {
         Unit allocSite;
 
@@ -29,19 +47,23 @@ public class AnalysisTransformer extends BodyTransformer {
 
         @Override
         public String toString() {
+            if (allocSite == null) return "TOP";
             return "Obj-" + allocSite.getJavaSourceStartLineNumber();
         }
     }
+    final AbsObj TOP = new AbsObj(null);
 
     class State {
         Map<Local, Set<AbsObj>> stack;
         Map<AbsObj, Map<SootField, Set<AbsObj>>> heap;
 
+        Map<SootField, Set<AbsObj>> statics;
+
 
         State() {
             stack = new HashMap<>();
             heap  = new HashMap<>();
-
+            statics = new HashMap<>();
         }
         State deepCopy() {
             State copy = new State();
@@ -70,7 +92,9 @@ public class AnalysisTransformer extends BodyTransformer {
                     copy.heap.put(objEntry.getKey(), newFieldMap);
                 }
             }
-
+            for (Map.Entry<SootField, Set<AbsObj>> e : statics.entrySet()) {
+                copy.statics.put(e.getKey(), new HashSet<>(e.getValue()));
+            }
 
             return copy;
         }
@@ -160,6 +184,11 @@ public class AnalysisTransformer extends BodyTransformer {
 
         }
 
+        for (SootField f : pre.statics.keySet()) {
+            Set<AbsObj> inSet = pre.statics.get(f);
+            Set<AbsObj> targetSet = target.statics.computeIfAbsent(f, k -> new HashSet<>());
+            if (targetSet.addAll(inSet)) changed = true;
+        }
         return changed;
     }
 
@@ -173,9 +202,17 @@ public class AnalysisTransformer extends BodyTransformer {
 
     State dataFlow(Unit u, State in) {
         State out = in.deepCopy();
-        if (u instanceof InvokeStmt || (u instanceof AssignStmt && ((AssignStmt) u).getRightOp() instanceof InvokeExpr)) {
+        if (u instanceof InvokeStmt ||
+        (u instanceof AssignStmt && ((AssignStmt) u).getRightOp() instanceof InvokeExpr)) {
 
-            out.heap.clear();
+            for (Map<SootField, Set<AbsObj>> fmap : out.heap.values()) {
+                for (Map.Entry<SootField, Set<AbsObj>> e : fmap.entrySet()) {
+
+                    Set<AbsObj> fresh = new HashSet<>();
+                    fresh.add(new AbsObj(u));   // new version after call
+                    e.setValue(fresh);
+                }
+            }
             return out;
         }
         if(u instanceof AssignStmt) {
@@ -342,7 +379,7 @@ public class AnalysisTransformer extends BodyTransformer {
         loadStr + " " +
         replaceVar.getName();
     }
-
+    
     @Override
     protected void internalTransform(Body body, String phaseName, Map<String, String> options) {
 
@@ -391,21 +428,22 @@ public class AnalysisTransformer extends BodyTransformer {
         }
 
         if (!results.isEmpty()) {
-            System.out.println(
+            String key =
                 body.getMethod().getDeclaringClass().getName() + ":" +
-                body.getMethod().getName()
-            );
+                body.getMethod().getName();
 
-            for (String s : results)
-                System.out.println(s);
+            allResults.putIfAbsent(key, new ArrayList<>());
+            allResults.get(key).addAll(results);
         }
-        // for (Unit u : graph) { 
-        //     System.out.println("================================="); 
-        //     System.out.println("Unit: " + u); 
-        //     System.out.println("----------- IN -----------"); 
-        //     System.out.println(IN.get(u)); 
-        //     System.out.println("----------- OUT ----------");
-        //     System.out.println(OUT.get(u)); 
-        // }
-    }
+
+        for (Unit u : graph) { 
+                System.out.println("================================="); 
+                System.out.println("Unit: " + u); 
+                System.out.println("----------- IN -----------"); 
+                System.out.println(IN.get(u)); 
+                System.out.println("----------- OUT ----------");
+                System.out.println(OUT.get(u)); 
+            }
+        }
+    
 }

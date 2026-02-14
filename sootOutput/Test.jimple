@@ -1,6 +1,6 @@
 public class Test extends java.lang.Object
 {
-    int f1;
+    static Test$Node global;
 
     public void <init>()
     {
@@ -15,45 +15,32 @@ public class Test extends java.lang.Object
 
     public static void main(java.lang.String[])
     {
-        Test $r0;
-        int i0, i1, i2;
-        java.lang.String[] r1;
+        java.lang.String[] r7;
+        Test$Node $r0, $r1, $r2, $r3, r4, $r5, r6;
 
-        r1 := @parameter0: java.lang.String[];
+        r7 := @parameter0: java.lang.String[];
 
-        $r0 = new Test;
+        $r0 = new Test$Node;
 
-        specialinvoke $r0.<Test: void <init>()>();
+        specialinvoke $r0.<Test$Node: void <init>()>();
 
-        $r0.<Test: int f1> = 10;
+        <Test: Test$Node global> = $r0;
 
-        i0 = $r0.<Test: int f1>;
+        $r2 = <Test: Test$Node global>;
 
-        i1 = $r0.<Test: int f1>;
+        $r1 = new Test$Node;
 
-        virtualinvoke $r0.<Test: void foo()>();
+        specialinvoke $r1.<Test$Node: void <init>()>();
 
-        i2 = $r0.<Test: int f1>;
+        $r2.<Test$Node: Test$Node next> = $r1;
 
-        return;
-    }
+        $r3 = <Test: Test$Node global>;
 
-    void foo()
-    {
-        Test $r0, r1;
-        int i0, i1;
+        r4 = $r3.<Test$Node: Test$Node next>;
 
-        r1 := @this: Test;
+        $r5 = <Test: Test$Node global>;
 
-        $r0 = new Test;
-
-        specialinvoke $r0.<Test: void <init>()>();
-
-        $r0.<Test: int f1> = 20;
-
-        i0 = $r0.<Test: int f1>;
-
-        i1 = $r0.<Test: int f1>;
+        r6 = $r5.<Test$Node: Test$Node next>;
 
         return;
     }

@@ -19,6 +19,7 @@ public class PA2 {
         Options.v().set_keep_line_number(true);
 
         soot.Main.main(sootArgs);
+        AnalysisTransformer.printResults();
 
     }
 }
