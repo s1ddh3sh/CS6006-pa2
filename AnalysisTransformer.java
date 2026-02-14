@@ -153,6 +153,28 @@ public class AnalysisTransformer extends BodyTransformer {
                 }
             }
 
+            sb.append("STATIC:\n"); 
+                if(statics.isEmpty()) {
+                    sb.append("  <empty>\n");
+
+                }else {
+                    for (SootField l : statics.keySet()) {
+                    sb.append("  ").append(l.getName()).append(" -> ");
+
+                    Set<AbsObj> pts = statics.get(l);
+                    if (pts == null || pts.isEmpty()) {
+                        sb.append("{}\n");
+                    } else {
+                        sb.append("{ ");
+                        for (AbsObj o : pts) {
+                            sb.append(o).append(" ");
+                        }
+                        sb.append("}\n");
+                    }
+                }
+                }
+            
+
             return sb.toString();
         }
     }
@@ -205,6 +227,16 @@ public class AnalysisTransformer extends BodyTransformer {
         if (u instanceof InvokeStmt ||
         (u instanceof AssignStmt && ((AssignStmt) u).getRightOp() instanceof InvokeExpr)) {
 
+             InvokeExpr ie = (u instanceof InvokeStmt)
+                ? ((InvokeStmt)u).getInvokeExpr()
+                : ((AssignStmt)u).getInvokeExpr();
+
+            SootMethod m = ie.getMethod();
+
+            // Ignore constructors
+            if (m.getName().equals("<init>"))
+                return out;
+            
             for (Map<SootField, Set<AbsObj>> fmap : out.heap.values()) {
                 for (Map.Entry<SootField, Set<AbsObj>> e : fmap.entrySet()) {
 
@@ -314,6 +346,21 @@ public class AnalysisTransformer extends BodyTransformer {
                 }
 
                 
+            }
+            // global = x
+            else if (lhs instanceof StaticFieldRef && rhs instanceof Local) {
+                StaticFieldRef sfr = (StaticFieldRef) lhs;
+                SootField f = sfr.getField();
+                Set<AbsObj> val = in.stack.getOrDefault((Local) rhs, new HashSet<>());
+                out.statics.put(f, new HashSet<>(val));
+            }
+            // x = global
+            else if (lhs instanceof Local && rhs instanceof StaticFieldRef) {
+                Local x = (Local) lhs;
+                StaticFieldRef sfr = (StaticFieldRef) rhs;
+                SootField f = sfr.getField();
+                Set<AbsObj> val = in.statics.getOrDefault(f, new HashSet<>());
+                out.stack.put(x, new HashSet<>(val));
             }
 
         }
