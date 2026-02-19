@@ -1,0 +1,66 @@
+public class Test extends java.lang.Object
+{
+
+    public void <init>()
+    {
+        Test r0;
+
+        r0 := @this: Test;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        Node $r0, $r1, $r2, $r3, $r4, r5, $r6, $r7, $r8, r9, $r10, $r11, r12;
+        java.lang.String[] r13;
+
+        r13 := @parameter0: java.lang.String[];
+
+        $r0 = new Node;
+
+        specialinvoke $r0.<Node: void <init>()>();
+
+        $r1 = new Node;
+
+        specialinvoke $r1.<Node: void <init>()>();
+
+        $r0.<Node: Node f> = $r1;
+
+        $r3 = $r0.<Node: Node f>;
+
+        $r2 = new Node;
+
+        specialinvoke $r2.<Node: void <init>()>();
+
+        $r3.<Node: Node g> = $r2;
+
+        $r4 = $r0.<Node: Node f>;
+
+        r5 = $r4.<Node: Node g>;
+
+        $r7 = $r0.<Node: Node f>;
+
+        $r6 = new Node;
+
+        specialinvoke $r6.<Node: void <init>()>();
+
+        $r7.<Node: Node g> = $r6;
+
+        $r8 = $r0.<Node: Node f>;
+
+        r9 = $r8.<Node: Node g>;
+
+        $r10 = new Node;
+
+        specialinvoke $r10.<Node: void <init>()>();
+
+        $r11 = $r10.<Node: Node f>;
+
+        r12 = $r11.<Node: Node g>;
+
+        return;
+    }
+}

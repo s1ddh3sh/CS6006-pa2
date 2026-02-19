@@ -1,0 +1,4 @@
+Test:foo
+17:$r0.<Test: int f1> i0
+Test:main
+7:i1 = $r0.<Test: int f1> i0

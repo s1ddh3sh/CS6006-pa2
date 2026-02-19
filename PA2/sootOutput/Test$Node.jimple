@@ -1,0 +1,15 @@
+class Test$Node extends java.lang.Object
+{
+    Test$Node next;
+
+    void <init>()
+    {
+        Test$Node r0;
+
+        r0 := @this: Test$Node;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+}
