@@ -1,6 +1,6 @@
 class Test$Node extends java.lang.Object
 {
-    Test$Node next;
+    Test$Node f1;
 
     void <init>()
     {
