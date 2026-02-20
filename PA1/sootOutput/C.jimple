@@ -1,0 +1,21 @@
+class C extends B
+{
+    public int c1;
+    public static int c2;
+
+    void <init>()
+    {
+        C r0;
+
+        r0 := @this: C;
+
+        specialinvoke r0.<B: void <init>()>();
+
+        return;
+    }
+
+    public static void staticBar()
+    {
+        return;
+    }
+}
