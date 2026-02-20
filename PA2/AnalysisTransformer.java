@@ -5,32 +5,10 @@ import soot.jimple.*;
 import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JNewExpr;
 import soot.toolkits.graph.*;
-import soot.toolkits.scalar.BackwardFlowAnalysis;
+import soot.toolkits.scalar.ForwardFlowAnalysis;
 import soot.toolkits.scalar.FlowSet;
 
 public class AnalysisTransformer extends BodyTransformer {
-
-    static Map<String, List<String>> allResults = new TreeMap<>();
-
-    public static void printResults() {
-
-        for (String key : allResults.keySet()) {
-
-            System.out.println(key);
-
-            List<String> lines = allResults.get(key);
-
-            Collections.sort(lines, (a, b) -> {
-                int la = Integer.parseInt(a.split(":")[0]);
-                int lb = Integer.parseInt(b.split(":")[0]);
-                return Integer.compare(la, lb);
-            });
-
-            for (String l : lines)
-                System.out.println(l);
-        }
-    }
-
     class AbsObj {
         Unit allocSite;
 
@@ -55,8 +33,6 @@ public class AnalysisTransformer extends BodyTransformer {
             return "Obj-" + allocSite.getJavaSourceStartLineNumber();
         }
     }
-
-    final AbsObj TOP = new AbsObj(null);
 
     class State {
         Map<Local, Set<AbsObj>> stack;
@@ -83,8 +59,8 @@ public class AnalysisTransformer extends BodyTransformer {
                         sb.append("{}\n");
                     } else {
                         sb.append("{ ");
-                        for (AbsObj o : pts) {
-                            sb.append(o).append(" ");
+                        for (Iterator<AbsObj> it = pts.iterator(); it.hasNext();) {
+                            sb.append(it.next()).append(" ");
                         }
                         sb.append("}\n");
                     }
@@ -108,8 +84,8 @@ public class AnalysisTransformer extends BodyTransformer {
                                 sb.append("{}\n");
                             } else {
                                 sb.append("{ ");
-                                for (AbsObj ob : pts) {
-                                    sb.append(ob).append(" ");
+                                for (Iterator<AbsObj> it = pts.iterator(); it.hasNext();) {
+                                    sb.append(it.next()).append(" ");
                                 }
                                 sb.append("}\n");
                             }
@@ -121,313 +97,164 @@ public class AnalysisTransformer extends BodyTransformer {
             }
             return sb.toString();
         }
+    }
 
-        State deepCopy() {
-            State out = new State();
+    class PointsToAnalysis extends ForwardFlowAnalysis<Unit, State> {
 
-            if (stack != null) {
-                for (Map.Entry<Local, Set<AbsObj>> e : stack.entrySet()) {
-                    Set<AbsObj> newSet = new HashSet<>(e.getValue());
-                    out.stack.put(e.getKey(), newSet);
+        PointsToAnalysis(UnitGraph graph) {
+            super(graph);
+            doAnalysis();
+        }
+
+        @Override
+        protected State newInitialFlow() {
+            return new State(); // empty stack + heap
+        }
+
+        @Override
+        protected State entryInitialFlow() {
+            return new State(); // entry = empty
+        }
+
+        @Override
+        protected void copy(State src, State dst) {
+            dst.stack.clear();
+            dst.heap.clear();
+
+            for (var e : src.stack.entrySet()) {
+                dst.stack.put(e.getKey(), new HashSet<>(e.getValue()));
+            }
+
+            for (var e : src.heap.entrySet()) {
+                Map<SootField, Set<AbsObj>> fMap = new HashMap<>();
+                for (var f : e.getValue().entrySet()) {
+                    fMap.put(f.getKey(), new HashSet<>(f.getValue()));
+                }
+                dst.heap.put(e.getKey(), fMap);
+            }
+        }
+
+        @Override
+        protected void merge(State in1, State in2, State out) {
+            out.stack.clear();
+            out.heap.clear();
+
+            // Stack
+            for (Local l : in1.stack.keySet()) {
+                Set<AbsObj> out_st = new HashSet<>(in1.stack.get(l));
+                out_st.addAll(in2.stack.getOrDefault(l, new HashSet<>()));
+                out.stack.put(l, out_st);
+            }
+
+            for (Local l : in2.stack.keySet()) {
+                if (!(out.stack.containsKey(l))) {
+                    out.stack.put(l, new HashSet<>(in2.stack.get(l)));
                 }
             }
-            if (heap != null) {
-                for (Map.Entry<AbsObj, Map<SootField, Set<AbsObj>>> objEntry : heap.entrySet()) {
 
-                    Map<SootField, Set<AbsObj>> newFieldMap = new HashMap<>();
+            // Heap
+            for (AbsObj obj : in1.heap.keySet()) {
+                Map<SootField, Set<AbsObj>> fmap = new HashMap<>();
 
-                    for (Map.Entry<SootField, Set<AbsObj>> fieldEntry : objEntry.getValue().entrySet()) {
-                        Set<AbsObj> newSet = new HashSet<>(fieldEntry.getValue());
-                        newFieldMap.put(fieldEntry.getKey(), newSet);
+                Map<SootField, Set<AbsObj>> m1 = in1.heap.get(obj);
+                Map<SootField, Set<AbsObj>> m2 = in2.heap.get(obj);
+
+                if (m1 != null) {
+                    for (var f1 : m1.entrySet()) {
+                        fmap.put(f1.getKey(), new HashSet<>(f1.getValue()));
                     }
-
-                    out.heap.put(objEntry.getKey(), newFieldMap);
                 }
-            }
-            return out;
-        }
-    }
-
-    boolean stateEquals(State a, State b) {
-        return a.stack.equals(b.stack) && a.heap.equals(b.heap);
-    }
-
-    AbsObj getAbsObj(Unit u) {
-        return new AbsObj(u);
-    }
-
-    void join(State out, State in) {
-
-        // stack
-        for (Local l : in.stack.keySet()) {
-            Set<AbsObj> inSet = in.stack.get(l);
-            Set<AbsObj> outSet = out.stack.computeIfAbsent(l, k -> new HashSet<>());
-
-            outSet.addAll(inSet);
-        }
-
-        // heap
-
-        for (AbsObj o : in.heap.keySet()) {
-            Map<SootField, Set<AbsObj>> inMap = in.heap.get(o);
-            Map<SootField, Set<AbsObj>> outMap = out.heap.computeIfAbsent(o, k -> new HashMap<>());
-
-            for (SootField f : inMap.keySet()) {
-                Set<AbsObj> inSet = inMap.get(f);
-                Set<AbsObj> outSet = outMap.computeIfAbsent(f, k -> new HashSet<>());
-
-                outSet.addAll(inSet);
-            }
-        }
-    }
-
-    State dataFlow(Unit u, State in) {
-        State out = in.deepCopy();
-
-        if (u instanceof InvokeStmt
-                || (u instanceof AssignStmt && ((AssignStmt) u).getRightOp() instanceof InvokeExpr)) {
-            InvokeExpr ie = (u instanceof InvokeStmt) ? ((InvokeStmt) u).getInvokeExpr()
-                    : ((AssignStmt) u).getInvokeExpr();
-            
-            SootMethod m = ie.getMethod();
-            // AbsObj top = new AbsObj(u);
-            if (m.getName().equals("<init>"))
-                return out;
-
-            for (Map<SootField, Set<AbsObj>> fMap : out.heap.values()) {
-                for (SootField f : fMap.keySet()) {
-                    Set<AbsObj> topSet = new HashSet<>();
-                    topSet.add(TOP);
-                    fMap.put(f, topSet);
+                if (m2 != null) {
+                    for (var f2 : m2.entrySet()) {
+                        fmap.computeIfAbsent(f2.getKey(), k -> new HashSet<>()).addAll(f2.getValue());
+                    }
                 }
+                out.heap.put(obj, fmap);
             }
 
-            Map<SootField, Set<AbsObj>> topMap = out.heap.computeIfAbsent(TOP, k -> new HashMap<>());
-
-            if (u instanceof AssignStmt) {
-                Value lhs = ((AssignStmt) u).getLeftOp();
-                if (lhs instanceof Local) {
-                    Set<AbsObj> st = new HashSet<>();
-                    st.add(TOP);
-                    out.stack.put((Local) lhs, st);
-                }
-            }
         }
 
-        if (u instanceof AssignStmt) {
+        @Override
+        protected void flowThrough(State in, Unit u, State out) {
+            copy(in, out);
+
+            if (!(u instanceof AssignStmt))
+                return;
+
             AssignStmt as = (AssignStmt) u;
             Value lhs = as.getLeftOp();
             Value rhs = as.getRightOp();
 
-            // x = new Node()
+            // x= new node
             if (lhs instanceof Local && rhs instanceof NewExpr) {
                 Local x = (Local) lhs;
+                AbsObj obj = new AbsObj(u);
 
-                Set<AbsObj> outSet = new HashSet<>();
-                AbsObj o = getAbsObj(u);
-                outSet.add(o);
-                out.stack.put(x, outSet);
-                out.heap.computeIfAbsent(o, k -> new HashMap<>());
+                Set<AbsObj> st = new HashSet<>();
+                st.add(obj);
+
+                out.stack.put(x, st);
+                out.heap.put(obj, new HashMap<>());
             }
 
-            // x = y;
+            // x = y
             if (lhs instanceof Local && rhs instanceof Local) {
                 Local x = (Local) lhs;
                 Local y = (Local) rhs;
 
-                Set<AbsObj> st = in.stack.getOrDefault(y, new HashSet<>());
-                out.stack.put(x, st);
+                out.stack.put(x, new HashSet<>(in.stack.getOrDefault(y, Set.of())));
             }
 
             // x = y.f
             if (lhs instanceof Local && rhs instanceof InstanceFieldRef) {
                 Local x = (Local) lhs;
-                InstanceFieldRef fieldRef = (InstanceFieldRef) rhs;
+                InstanceFieldRef fr = (InstanceFieldRef) rhs;
+                Local base = (Local) fr.getBase();
+                SootField field = fr.getField();
 
-                SootField field = fieldRef.getField();
-                Local y = (Local) fieldRef.getBase();
+                Set<AbsObj> res = new HashSet<>();
 
-                Set<AbsObj> result = new HashSet<>();
-                Set<AbsObj> y_objs = in.stack.getOrDefault(y, new HashSet<>());
-
-                for (AbsObj obj : y_objs) {
+                for (AbsObj obj : in.stack.getOrDefault(base, Set.of())) {
                     Map<SootField, Set<AbsObj>> fMap = in.heap.get(obj);
-                    if (obj == TOP) {
-                        result.add(TOP);
-                        continue;
-                    }
-                    if (fMap == null)
-                        continue;
-                    Set<AbsObj> f_objs = fMap.get(field);
-                    if (f_objs != null)
-                        result.addAll(f_objs);
+                    res.addAll(fMap.getOrDefault(field, Set.of()));
                 }
-                out.stack.put(x, result);
+                out.stack.put(x, res);
 
             }
+
             // x.f = y
             if (lhs instanceof InstanceFieldRef && rhs instanceof Local) {
                 Local y = (Local) rhs;
-                InstanceFieldRef fieldRef = (InstanceFieldRef) lhs;
-
-                Local x = (Local) fieldRef.getBase();
-                SootField field = fieldRef.getField();
-
-                Set<AbsObj> x_objs = in.stack.getOrDefault(x, new HashSet<>());
-                Set<AbsObj> y_objs = in.stack.getOrDefault(y, new HashSet<>());
-
-                for (AbsObj obj : x_objs) {
-                    Map<SootField, Set<AbsObj>> fMap = out.heap.computeIfAbsent(obj, k -> new HashMap<>());
-                    Set<AbsObj> fSet = fMap.computeIfAbsent(field, k -> new HashSet<>());
-                    if (x_objs.size() == 1) {
-                        fSet.clear();
-                        fSet.addAll(y_objs);
-                    } else {
-                        fSet.addAll(y_objs);
-                    }
-                }
-            }
-
-            // x.f = const
-            if (lhs instanceof InstanceFieldRef && rhs instanceof Constant) {
-
                 InstanceFieldRef fr = (InstanceFieldRef) lhs;
-                Local x = (Local) fr.getBase();
+                Local base = (Local) fr.getBase();
                 SootField field = fr.getField();
 
-                Set<AbsObj> x_objs = in.stack.getOrDefault(x, new HashSet<>());
-
-                for (AbsObj obj : x_objs) {
+                Set<AbsObj> base_objs = in.stack.getOrDefault(base, Set.of());
+                for (AbsObj obj : base_objs) {
                     Map<SootField, Set<AbsObj>> fMap = out.heap.computeIfAbsent(obj, k -> new HashMap<>());
-                    Set<AbsObj> primit_st = new HashSet<>();
-                    primit_st.add(new AbsObj(u));
-                    fMap.put(field, primit_st);
+
+                    fMap.put(field, new HashSet<>(in.stack.getOrDefault(y, Set.of())));
+
                 }
             }
         }
-
-        return out;
-    }
-
-    String redundant(Unit u, State in, Body body) {
-        if (!(u instanceof AssignStmt))
-            return null;
-
-        AssignStmt as = (AssignStmt) u;
-        Value lhs = as.getLeftOp();
-        Value rhs = as.getRightOp();
-
-        if (!(rhs instanceof InstanceFieldRef))
-            return null;
-
-        Local x = (Local) lhs;
-        InstanceFieldRef fr = (InstanceFieldRef) rhs;
-
-        Local y = (Local) fr.getBase();
-        SootField field = fr.getField();
-        Set<AbsObj> loaded = new HashSet<>();
-
-        Set<AbsObj> y_objs = in.stack.getOrDefault(y, new HashSet<>());
-
-        for (AbsObj obj : y_objs) {
-            if(obj == TOP) {
-                loaded.add(TOP);
-                continue;
-            }
-            Map<SootField, Set<AbsObj>> fMap = in.heap.get(obj);
-            if (fMap == null)
-                continue;
-            Set<AbsObj> fSet = fMap.get(field);
-            if (fSet != null)
-                loaded.addAll(fSet);
-
-        }
-
-        // if (loaded.isEmpty())
-        //     return null;
-
-        Local replaceVar = null;
-        for (Map.Entry<Local, Set<AbsObj>> e : in.stack.entrySet()) {
-            Local v = e.getKey();
-            if (v.equals(x))
-                continue;
-            if (v.getName().startsWith("$"))
-                continue;
-
-            if (e.getValue().equals(loaded)) {
-                replaceVar = v;
-                break;
-            }
-        }
-
-        if (replaceVar == null)
-            return null;
-
-        String res = u.getJavaSourceStartLineNumber() + ":" + as.toString() + " " + replaceVar.getName();
-
-        return res;
-
     }
 
     @Override
-    protected void internalTransform(Body body, String phaseName, Map<String, String> options) {
+    public void internalTransform(Body body, String phaseName, Map<String, String> options) {
+        UnitGraph graph = new BriefUnitGraph(body);
+        PointsToAnalysis pta = new PointsToAnalysis(graph);
 
-        UnitGraph g = new BriefUnitGraph(body);
-        Chain<Unit> units = body.getUnits();
-        Map<Unit, State> IN = new HashMap<>();
-        Map<Unit, State> OUT = new HashMap<>();
+        for (Unit u : graph) {
+            State in = pta.getFlowBefore(u);
+            State out = pta.getFlowAfter(u);
 
-        for (Unit u : g) {
-            IN.put(u, new State());
-            OUT.put(u, new State());
-        }
-
-        Queue<Unit> worklist = new LinkedList<>(units);
-        List<String> results = new ArrayList<>();
-        while (!worklist.isEmpty()) {
-            Unit u = worklist.poll();
-
-            State newIn = new State();
-
-            for (Unit pre : g.getPredsOf(u)) {
-                join(newIn, OUT.get(pre));
-            }
-
-            if (!stateEquals(newIn, IN.get(u))) {
-                IN.put(u, newIn);
-            }
-
-            State oldOut = OUT.get(u);
-            State newOut = dataFlow(u, IN.get(u));
-
-            if (!stateEquals(oldOut, newOut)) {
-                OUT.put(u, newOut);
-                for (Unit sc : g.getSuccsOf(u)) {
-                    worklist.add(sc);
-                }
-            }
-
-        }
-        for (Unit unit : g) {
-            String r = redundant(unit, IN.get(unit), body);
-            if (r != null)
-                results.add(r);
-        }
-
-        if (!results.isEmpty()) {
-            String key = body.getMethod().getDeclaringClass().getName() + ":" + body.getMethod().getName();
-
-            allResults.putIfAbsent(key, new ArrayList<>());
-            allResults.get(key).addAll(results);
-        }
-        for (Unit u : g) {
             System.out.println("=================================");
             System.out.println("Unit: " + u);
             System.out.println("----------- IN -----------");
-            System.out.println(IN.get(u));
+            System.out.println(in);
             System.out.println("----------- OUT ----------");
-            System.out.println(OUT.get(u));
+            System.out.println(out);
         }
     }
-
 }

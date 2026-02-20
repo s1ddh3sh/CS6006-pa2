@@ -413,15 +413,15 @@ public class AnalysisTransformer extends BodyTransformer {
 
         if (replaceVar == null) return null;
 
-        String loadStr =
-        base.getName() + ".<" +
-        field.getDeclaringClass().getName() + ": " +
-        field.getType() + " " +
-        field.getName() + ">";
+        // String loadStr =
+        // base.getName() + ".<" +
+        // field.getDeclaringClass().getName() + ": " +
+        // field.getType() + " " +
+        // field.getName() + ">";
 
         return
         u.getJavaSourceStartLineNumber() + ":" +
-        loadStr + " " +
+        rhs.toString() + " " +
         replaceVar.getName();
     }
     

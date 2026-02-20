@@ -1,46 +1,4 @@
-Soot started on Fri Feb 20 00:49:30 IST 2026
-=================================
-Unit: r0 := @this: Test$Node
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
-=================================
-Unit: specialinvoke r0.<java.lang.Object: void <init>()>()
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
-=================================
-Unit: return
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
+Soot started on Fri Feb 20 10:39:37 IST 2026
 =================================
 Unit: r0 := @this: Test
 ----------- IN -----------
@@ -84,7 +42,7 @@ HEAP:
   <empty>
 
 =================================
-Unit: r1 := @parameter0: java.lang.String[]
+Unit: r4 := @parameter0: java.lang.String[]
 ----------- IN -----------
 STACK:
   <empty>
@@ -98,7 +56,7 @@ HEAP:
   <empty>
 
 =================================
-Unit: $r0 = new Test$Node
+Unit: $r0 = new A
 ----------- IN -----------
 STACK:
   <empty>
@@ -107,140 +65,430 @@ HEAP:
 
 ----------- OUT ----------
 STACK:
-  $r0 -> { Obj-7 }
+  $r0 -> { Obj-8 }
 HEAP:
-  Obj-7 -> {
+  Obj-8 -> {
   }
 
 =================================
-Unit: specialinvoke $r0.<Test$Node: void <init>()>()
+Unit: specialinvoke $r0.<A: void <init>()>()
 ----------- IN -----------
 STACK:
-  $r0 -> { Obj-7 }
+  $r0 -> { Obj-8 }
 HEAP:
-  Obj-7 -> {
+  Obj-8 -> {
   }
 
 ----------- OUT ----------
 STACK:
-  $r0 -> { Obj-7 }
+  $r0 -> { Obj-8 }
 HEAP:
-  Obj-7 -> {
+  Obj-8 -> {
   }
 
 =================================
-Unit: $i0 = lengthof r1
+Unit: $r1 = new A
 ----------- IN -----------
 STACK:
-  $r0 -> { Obj-7 }
+  $r0 -> { Obj-8 }
 HEAP:
-  Obj-7 -> {
+  Obj-8 -> {
   }
 
 ----------- OUT ----------
 STACK:
-  $r0 -> { Obj-7 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
   }
 
 =================================
-Unit: if $i0 <= 0 goto $r2 = $r0.<Test$Node: Test$Node f1>
+Unit: specialinvoke $r1.<A: void <init>()>()
 ----------- IN -----------
 STACK:
-  $r0 -> { Obj-7 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
   }
 
 ----------- OUT ----------
 STACK:
-  $r0 -> { Obj-7 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
   }
 
 =================================
-Unit: r4 = $r0.<Test$Node: Test$Node f1>
+Unit: $r2 = new A
 ----------- IN -----------
 STACK:
-  $r0 -> { Obj-7 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
   }
 
 ----------- OUT ----------
 STACK:
-  $r0 -> { Obj-7 }
-  r4 -> {}
+  $r0 -> { Obj-8 }
+  $r2 -> { Obj-11 }
+  $r1 -> { Obj-9 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+  }
+  Obj-11 -> {
   }
 
 =================================
-Unit: $r2 = $r0.<Test$Node: Test$Node f1>
+Unit: specialinvoke $r2.<A: void <init>()>()
 ----------- IN -----------
 STACK:
-  $r0 -> { Obj-7 }
-  r4 -> {}
+  $r2 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+  }
+  Obj-11 -> {
   }
 
 ----------- OUT ----------
 STACK:
-  $r0 -> { Obj-7 }
-  $r2 -> {}
-  r4 -> {}
+  $r2 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+  }
+  Obj-11 -> {
   }
 
 =================================
-Unit: $r3 = $r0.<Test$Node: Test$Node f1>
+Unit: $r0.<A: A f1> = $r2
 ----------- IN -----------
 STACK:
-  $r2 -> {}
-  $r0 -> { Obj-7 }
-  r4 -> {}
+  $r0 -> { Obj-8 }
+  $r2 -> { Obj-11 }
+  $r1 -> { Obj-9 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+  }
+  Obj-11 -> {
   }
 
 ----------- OUT ----------
 STACK:
-  $r2 -> {}
-  $r0 -> { Obj-7 }
-  r4 -> {}
-  $r3 -> {}
+  $r0 -> { Obj-8 }
+  $r2 -> { Obj-11 }
+  $r1 -> { Obj-9 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+=================================
+Unit: if $r0 != $r1 goto r6 = $r0.<A: A f1>
+----------- IN -----------
+STACK:
+  $r2 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+----------- OUT ----------
+STACK:
+  $r2 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+=================================
+Unit: r5 = $r0.<A: A f1>
+----------- IN -----------
+STACK:
+  $r0 -> { Obj-8 }
+  $r2 -> { Obj-11 }
+  $r1 -> { Obj-9 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+----------- OUT ----------
+STACK:
+  r5 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r2 -> { Obj-11 }
+  $r1 -> { Obj-9 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+=================================
+Unit: goto [?= $r3 = $r0.<A: A f1>]
+----------- IN -----------
+STACK:
+  r5 -> { Obj-11 }
+  $r2 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+----------- OUT ----------
+STACK:
+  r5 -> { Obj-11 }
+  $r2 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+=================================
+Unit: r6 = $r0.<A: A f1>
+----------- IN -----------
+STACK:
+  $r0 -> { Obj-8 }
+  $r2 -> { Obj-11 }
+  $r1 -> { Obj-9 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+----------- OUT ----------
+STACK:
+  $r0 -> { Obj-8 }
+  $r2 -> { Obj-11 }
+  $r1 -> { Obj-9 }
+  r6 -> { Obj-11 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+=================================
+Unit: $r3 = $r0.<A: A f1>
+----------- IN -----------
+STACK:
+  r5 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r2 -> { Obj-11 }
+  r6 -> { Obj-11 }
+  $r1 -> { Obj-9 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
+  }
+
+----------- OUT ----------
+STACK:
+  $r3 -> { Obj-11 }
+  r5 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r2 -> { Obj-11 }
+  r6 -> { Obj-11 }
+  $r1 -> { Obj-9 }
+HEAP:
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
   }
 
 =================================
 Unit: return
 ----------- IN -----------
 STACK:
-  $r0 -> { Obj-7 }
-  $r2 -> {}
-  r4 -> {}
-  $r3 -> {}
+  $r3 -> { Obj-11 }
+  r5 -> { Obj-11 }
+  $r2 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
+  r6 -> { Obj-11 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
   }
 
 ----------- OUT ----------
 STACK:
-  $r0 -> { Obj-7 }
-  $r2 -> {}
-  r4 -> {}
-  $r3 -> {}
+  $r3 -> { Obj-11 }
+  r5 -> { Obj-11 }
+  $r2 -> { Obj-11 }
+  $r0 -> { Obj-8 }
+  $r1 -> { Obj-9 }
+  r6 -> { Obj-11 }
 HEAP:
-  Obj-7 -> {
+  Obj-9 -> {
+  }
+  Obj-8 -> {
+      f1 -> { Obj-11 }
+  }
+  Obj-11 -> {
   }
 
-Soot finished on Fri Feb 20 00:49:31 IST 2026
+=================================
+Unit: r0 := @this: A
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+=================================
+Unit: specialinvoke r0.<java.lang.Object: void <init>()>()
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+=================================
+Unit: return
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+=================================
+Unit: r0 := @this: Test$Node
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+=================================
+Unit: specialinvoke r0.<java.lang.Object: void <init>()>()
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+=================================
+Unit: return
+----------- IN -----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+----------- OUT ----------
+STACK:
+  <empty>
+HEAP:
+  <empty>
+
+Soot finished on Fri Feb 20 10:39:37 IST 2026
 Soot has run for 0 min. 0 sec.
 Test:main
-13:$r2 = $r0.<Test$Node: Test$Node f1> r4
-14:$r3 = $r0.<Test$Node: Test$Node f1> r4
+18:$r3 = $r0.<A: A f1> r5

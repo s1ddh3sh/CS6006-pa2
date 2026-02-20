@@ -1,13 +1,12 @@
-class Node extends java.lang.Object
+class A extends java.lang.Object
 {
-    Node f;
-    Node g;
+    public A f1;
 
     void <init>()
     {
-        Node r0;
+        A r0;
 
-        r0 := @this: Node;
+        r0 := @this: A;
 
         specialinvoke r0.<java.lang.Object: void <init>()>();
 
