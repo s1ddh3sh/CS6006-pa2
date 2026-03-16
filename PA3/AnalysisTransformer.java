@@ -2,6 +2,7 @@
 import java.util.*;
 import soot.*;
 import soot.jimple.*;
+import soot.jimple.parser.node.ALabelName;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.BriefUnitGraph;
@@ -23,6 +24,7 @@ public class AnalysisTransformer extends SceneTransformer {
     private static final Map<Integer, EscapeStatus> escapeStatus = new HashMap<>();
 
     private static final Map<Integer, Set<Integer>> rewriteLines = new HashMap<>();
+    private static int nextAllocId = 0;
 
     enum EscapeStatus {
         LOCAL, REWRITE, ESCAPED
@@ -31,33 +33,37 @@ public class AnalysisTransformer extends SceneTransformer {
     @Override
     public void internalTransform(String phaseName, Map<String, String> options) {
         cg = Scene.v().getCallGraph();
-
         for (SootClass cls : Scene.v().getApplicationClasses()) {
+
             for (SootMethod method : cls.getMethods()) {
+                
                 if (!shouldAnalyze(method))
                     continue;
 
-                Body body = method.getActiveBody();
-
+                Body body = method.retrieveActiveBody();
+                // System.out.println("\nFor method : " + method.getDeclaringClass().getName() +
+                // method.getName());
                 UnitGraph graph = new BriefUnitGraph(body);
                 Map<Unit, Integer> unitToIndex = buildUnitToIndex(body);
+                for (Unit u : body.getUnits()) {
+                    if (u instanceof AssignStmt) {
+                        AssignStmt stmt = (AssignStmt) u;
+                        if (stmt.getRightOp() instanceof AnyNewExpr) {
+                            int id = nextAllocId++;
+                            AllocSite site = new AllocSite(id, u, method, false);
+                            allocSites.put(u, site);
+                            allocSiteObjs.put(id, site);
+                            escapeStatus.put(id, EscapeStatus.LOCAL);
+                            rewriteLines.put(id, new TreeSet<>());
+                        }
+                    }
+                }
                 Map<Unit, PointsToState> ptsIn = new HashMap<>();
                 Map<Unit, PointsToState> ptsOut = new HashMap<>();
                 runPointsToAnalysis(graph, unitToIndex, ptsIn, ptsOut);
 
                 methodPtsIn.put(method.getSignature(), ptsIn);
 
-                for (Unit u : body.getUnits()) {
-                    if (u instanceof AssignStmt) {
-                        AssignStmt stmt = (AssignStmt) u;
-                        if (stmt.getRightOp() instanceof AnyNewExpr) {
-                            int id = unitToIndex.get(u);
-                            allocSiteObjs.put(id, new AllocSite(id, u, method, false));
-                            escapeStatus.put(id, EscapeStatus.LOCAL);
-                            rewriteLines.put(id, new TreeSet<>());
-                        }
-                    }
-                }
             }
         }
 
@@ -69,13 +75,13 @@ public class AnalysisTransformer extends SceneTransformer {
             }
         }
 
-        analyzeCallsAndPropagate();
-        printResults();
+        // analyzeCallsAndPropagate();
+        // printResults();
 
     }
 
     void objectUsage(SootMethod method) {
-        Body body = method.getActiveBody();
+        Body body = method.retrieveActiveBody();
 
         Map<Unit, PointsToState> ptsIn = methodPtsIn.get(method.getSignature());
 
@@ -124,6 +130,7 @@ public class AnalysisTransformer extends SceneTransformer {
                 InvokeExpr invoke = stmt.getInvokeExpr();
                 List<Value> args = invoke.getArgs();
 
+                // for args
                 for (int i = 0; i < args.size(); i++) {
                     Value arg = args.get(i);
                     if (!(arg instanceof Local))
@@ -139,6 +146,7 @@ public class AnalysisTransformer extends SceneTransformer {
                     }
                 }
 
+                // for receiver
                 if (invoke instanceof InstanceInvokeExpr) {
                     Value base = ((InstanceInvokeExpr) invoke).getBase();
 
@@ -168,7 +176,26 @@ public class AnalysisTransformer extends SceneTransformer {
     }
 
     private void analyzeCallsAndPropagate() {
+        for (Map.Entry<Integer, List<CallInvokeInfo>> entry : passedToCalls.entrySet()) {
+            int id = entry.getKey();
+            System.out.println("\nSiteId : " + id + "\n");
 
+            System.out.println("CallSites : \n");
+            for (CallInvokeInfo info : entry.getValue()) {
+                System.out.println(info.callUnit);
+                System.out.println(info.argIndex);
+                System.out.println(info.containingMethod.getName());
+                System.out.println("\n");
+            }
+        }
+
+        for (Map.Entry<Integer, Set<Integer>> entry : rewriteLines.entrySet()) {
+            int id = entry.getKey();
+            System.out.println("\nSiteId : " + id + "\n");
+
+            System.out.println("RewriteLines:\n");
+            System.out.println(entry.getValue());
+        }
         for (Map.Entry<Integer, List<CallInvokeInfo>> entry : passedToCalls.entrySet()) {
             int id = entry.getKey();
             if (escapeStatus.get(id) == EscapeStatus.ESCAPED)
@@ -227,7 +254,7 @@ public class AnalysisTransformer extends SceneTransformer {
     }
 
     enum CalleeStatus {
-        READS_ONLY, WRITES_FIELD, STORES_TO_HEAP, RETURNS_ARG, PASSES_FURTHER
+        READS_ONLY, WRITES_FIELD, RETURNS_ARG, PASSES_FURTHER
     }
 
     private boolean resolveCall(int siteId, CallInvokeInfo record) {
@@ -250,8 +277,6 @@ public class AnalysisTransformer extends SceneTransformer {
 
             switch (status) {
                 case WRITES_FIELD:
-                case STORES_TO_HEAP:
-
                 case RETURNS_ARG:
                     return true;
 
@@ -300,7 +325,6 @@ public class AnalysisTransformer extends SceneTransformer {
 
             InvokeExpr invoke = stmt.getInvokeExpr();
 
-            // check if param appears as an argument
             List<Value> args = invoke.getArgs();
             for (int i = 0; i < args.size(); i++) {
                 if (args.get(i).equals(param)) {
@@ -320,6 +344,7 @@ public class AnalysisTransformer extends SceneTransformer {
 
     private Local getParamLocal(Body body, int argIndex) {
         Local param = null;
+
         if (argIndex == -1) {
             for (Unit u : body.getUnits()) {
                 if (u instanceof IdentityStmt) {
@@ -351,7 +376,7 @@ public class AnalysisTransformer extends SceneTransformer {
         if (!method.isConcrete())
             return CalleeStatus.PASSES_FURTHER;
 
-        Body body = method.getActiveBody();
+        Body body = method.retrieveActiveBody();
 
         Local param = getParamLocal(body, argIndex);
 
@@ -376,7 +401,7 @@ public class AnalysisTransformer extends SceneTransformer {
 
                 if (lhs instanceof InstanceFieldRef && rhs instanceof Local) {
                     if (((Local) rhs).equals(param))
-                        return CalleeStatus.STORES_TO_HEAP;
+                        return CalleeStatus.WRITES_FIELD;
                 }
 
             }
@@ -474,6 +499,10 @@ public class AnalysisTransformer extends SceneTransformer {
             if (!outState.equals(outMap.get(unit))) {
                 inMap.put(unit, inState);
                 outMap.put(unit, outState);
+                System.out.println("\nUnit: " + unit);
+                printPointsToState("IN", inState);
+                printPointsToState("OUT", outState);
+
                 for (Unit succ : graph.getSuccsOf(unit)) {
                     worklist.add(succ);
                 }
@@ -683,13 +712,72 @@ public class AnalysisTransformer extends SceneTransformer {
     // }
     // }
     // }
+    private static void printPointsToState(String label, PointsToState state) {
+        System.out.println("  " + label + ":");
+        if (state == null) {
+            System.out.println("    [NULL STATE]");
+            return;
+        }
+
+        Map<Local, Set<AllocSite>> varPts = state.varPts;
+        if (varPts.isEmpty()) {
+            System.out.println("    Variables: [EMPTY]");
+        } else {
+            System.out.println("    Variables:");
+            for (Map.Entry<Local, Set<AllocSite>> entry : varPts.entrySet()) {
+                Local var = entry.getKey();
+                Set<AllocSite> sites = entry.getValue();
+                System.out.println("      " + var.getName() + " -> {" + allocSiteSetStr(sites) + "}");
+            }
+        }
+
+        Map<FieldKey, Set<AllocSite>> fieldPts = state.fieldPts;
+        if (!fieldPts.isEmpty()) {
+            System.out.println("    Fields:");
+            for (Map.Entry<FieldKey, Set<AllocSite>> entry : fieldPts.entrySet()) {
+                FieldKey key = entry.getKey();
+                Set<AllocSite> sites = entry.getValue();
+                AllocSite site = key.site;
+                String siteStr = allocSiteStr(site);
+                System.out.print("      " + siteStr + "." + key.field.getName() + " -> {");
+                System.out.println(allocSiteSetStr(sites) + "}");
+            }
+        }
+
+        Map<AllocSite, Set<Local>> revVarPts = state.revVarPts;
+        if (!revVarPts.isEmpty()) {
+            System.out.println("    Reverse (site -> variables):");
+            for (Map.Entry<AllocSite, Set<Local>> entry : revVarPts.entrySet()) {
+                AllocSite site = entry.getKey();
+                Set<Local> locals = entry.getValue();
+                System.out.print("      " + allocSiteStr(site) + " -> {");
+                boolean first = true;
+                for (Local l : locals) {
+                    if (!first)
+                        System.out.print(", ");
+                    System.out.print(l.getName());
+                    first = false;
+                }
+                System.out.println("}");
+            }
+        }
+
+        Map<Local, Integer> lastWriteLine = state.lastWriteLine;
+        if (!lastWriteLine.isEmpty()) {
+            System.out.println("    Last write line (locals):");
+            for (Map.Entry<Local, Integer> entry : lastWriteLine.entrySet()) {
+                System.out.println("      " + entry.getKey().getName() + " @ line " + entry.getValue());
+            }
+        }
+    }
 
     private static AllocSite getAllocSite(Unit unit, Map<Unit, Integer> unitToIndex) {
         AllocSite site = allocSites.get(unit);
         if (site == null) {
-            int id = unitToIndex.get(unit);
+            int id = nextAllocId++;
             site = new AllocSite(id, unit, null, false);
             allocSites.put(unit, site);
+            allocSiteObjs.put(id, site);
         }
         return site;
     }
@@ -705,14 +793,16 @@ public class AnalysisTransformer extends SceneTransformer {
         private final SootMethod method;
         private final boolean unknown;
 
-        private final int lineNumber;
+        private int lineNumber;
 
         AllocSite(int id, Unit unit, SootMethod method, boolean unknown) {
             this.id = id;
             this.unit = unit;
             this.method = method;
             this.unknown = unknown;
-            this.lineNumber = unit.getJavaSourceStartLineNumber();
+            this.lineNumber = -1;
+            if (unit != null)
+                this.lineNumber = unit.getJavaSourceStartLineNumber();
         }
 
         @Override
@@ -770,6 +860,24 @@ public class AnalysisTransformer extends SceneTransformer {
         public int hashCode() {
             return Objects.hash(site, field);
         }
+    }
+
+    private static String allocSiteStr(AllocSite site) {
+        if (site.unknown)
+            return "UNKNOWN";
+        return "AllocSite#" + site.id;
+    }
+
+    private static String allocSiteSetStr(Set<AllocSite> sites) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (AllocSite s : sites) {
+            if (!first)
+                sb.append(", ");
+            sb.append(allocSiteStr(s));
+            first = false;
+        }
+        return sb.toString();
     }
 
     private static Set<AllocSite> setOf(AllocSite site) {

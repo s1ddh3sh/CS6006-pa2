@@ -3,7 +3,7 @@ import soot.*;
 import soot.jimple.*;
 import soot.toolkits.graph.*;
 
-public class AnalysisTransformer extends BodyTransformer {
+public class AnalysisTransformer2 extends BodyTransformer {
   private static final AllocSite UNKNOWN_ALLOC = new AllocSite(-1, null, true);
   private static boolean initialized = false;
   private static int totalTargets = 0;
@@ -62,7 +62,6 @@ public class AnalysisTransformer extends BodyTransformer {
     return !"<init>".equals(name) && !"<clinit>".equals(name);
   }
 
-
   private static Map<Unit, Integer> buildUnitToIndex(Body body) {
     Map<Unit, Integer> map = new HashMap<>();
     int index = 0;
@@ -106,7 +105,6 @@ public class AnalysisTransformer extends BodyTransformer {
     }
   }
 
-  
   private static PointsToState mergePointsTo(
       List<Unit> preds, Map<Unit, PointsToState> outMap, Set<Unit> visited) {
     if (preds == null || preds.isEmpty()) {
@@ -406,7 +404,6 @@ public class AnalysisTransformer extends BodyTransformer {
     }
   }
 
-
   private static void printPointsToState(String label, PointsToState state) {
     System.out.println("  " + label + ":");
     if (state == null) {
@@ -448,7 +445,8 @@ public class AnalysisTransformer extends BodyTransformer {
         System.out.print("      " + allocSiteStr(site) + " -> {");
         boolean first = true;
         for (Local l : locals) {
-          if (!first) System.out.print(", ");
+          if (!first)
+            System.out.print(", ");
           System.out.print(l.getName());
           first = false;
         }
@@ -466,7 +464,8 @@ public class AnalysisTransformer extends BodyTransformer {
   }
 
   private static String allocSiteStr(AllocSite site) {
-    if (site.unknown) return "UNKNOWN";
+    if (site.unknown)
+      return "UNKNOWN";
     return "AllocSite#" + site.id;
   }
 
@@ -474,7 +473,8 @@ public class AnalysisTransformer extends BodyTransformer {
     StringBuilder sb = new StringBuilder();
     boolean first = true;
     for (AllocSite s : sites) {
-      if (!first) sb.append(", ");
+      if (!first)
+        sb.append(", ");
       sb.append(allocSiteStr(s));
       first = false;
     }
