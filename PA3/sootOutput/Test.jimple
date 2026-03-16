@@ -1,0 +1,66 @@
+public class Test extends java.lang.Object
+{
+
+    public void <init>()
+    {
+        Test r0;
+
+        r0 := @this: Test;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        java.io.PrintStream $r1;
+        java.lang.String[] r6;
+        M $r0, $r2, $r4;
+        N $r3;
+        O $r5;
+        int $i0;
+
+        r6 := @parameter0: java.lang.String[];
+
+        $r0 = new M;
+
+        specialinvoke $r0.<M: void <init>()>();
+
+        $r0.<M: int x> = 8;
+
+        $r1 = <java.lang.System: java.io.PrintStream out>;
+
+        $i0 = $r0.<M: int x>;
+
+        virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0);
+
+        $r2 = new M;
+
+        specialinvoke $r2.<M: void <init>()>();
+
+        $r3 = new N;
+
+        specialinvoke $r3.<N: void <init>()>();
+
+        $r2.<M: int x> = 27;
+
+        $r2.<M: int y> = 125;
+
+        virtualinvoke $r3.<N: void foo(M)>($r2);
+
+        $r4 = new M;
+
+        specialinvoke $r4.<M: void <init>()>();
+
+        $r5 = new O;
+
+        specialinvoke $r5.<O: void <init>()>();
+
+        $r4.<M: int x> = 343;
+
+        virtualinvoke $r5.<O: void foo(M)>($r4);
+
+        return;
+    }
+}

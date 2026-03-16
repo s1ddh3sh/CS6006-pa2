@@ -9,6 +9,28 @@ import soot.toolkits.scalar.ForwardFlowAnalysis;
 import soot.toolkits.scalar.FlowSet;
 
 public class AnalysisTransformer extends BodyTransformer {
+
+    static Map<String, List<String>> allResults = new TreeMap<>();
+
+    public static void printResults() {
+
+        for (String key : allResults.keySet()) {
+
+            System.out.println(key);
+
+            List<String> lines = allResults.get(key);
+
+            Collections.sort(lines, (a, b) -> {
+                int la = Integer.parseInt(a.split(":")[0]);
+                int lb = Integer.parseInt(b.split(":")[0]);
+                return Integer.compare(la, lb);
+            });
+
+            for (String l : lines)
+                System.out.println(l);
+        }
+    }
+
     class AbsObj {
         Unit allocSite;
 
@@ -240,21 +262,89 @@ public class AnalysisTransformer extends BodyTransformer {
         }
     }
 
+    String redundant(Unit u, State in, Body body) {
+        if (!(u instanceof AssignStmt))
+            return null;
+
+        AssignStmt as = (AssignStmt) u;
+        Value lhs = as.getLeftOp();
+        Value rhs = as.getRightOp();
+
+        if (!(rhs instanceof InstanceFieldRef))
+            return null;
+
+        Local x = (Local) lhs;
+        InstanceFieldRef fr = (InstanceFieldRef) rhs;
+
+        Local y = (Local) fr.getBase();
+        SootField field = fr.getField();
+        Set<AbsObj> loaded = new HashSet<>();
+
+        Set<AbsObj> y_objs = in.stack.getOrDefault(y, new HashSet<>());
+
+        for (AbsObj obj : y_objs) {
+           
+            Map<SootField, Set<AbsObj>> fMap = in.heap.get(obj);
+            if (fMap == null)
+                continue;
+            Set<AbsObj> fSet = fMap.get(field);
+            if (fSet != null)
+                loaded.addAll(fSet);
+
+        }
+
+        // if (loaded.isEmpty())
+        // return null;
+
+        Local replaceVar = null;
+        for (Map.Entry<Local, Set<AbsObj>> e : in.stack.entrySet()) {
+            Local v = e.getKey();
+            if (v.equals(x))
+                continue;
+            if (v.getName().startsWith("$"))
+                continue;
+
+            if (e.getValue().equals(loaded)) {
+                replaceVar = v;
+                break;
+            }
+        }
+
+        if (replaceVar == null)
+            return null;
+
+        String res = u.getJavaSourceStartLineNumber() + ":" + as.toString() + " " + replaceVar.getName();
+
+        return res;
+
+    }
+
     @Override
     public void internalTransform(Body body, String phaseName, Map<String, String> options) {
+
         UnitGraph graph = new BriefUnitGraph(body);
         PointsToAnalysis pta = new PointsToAnalysis(graph);
 
-        for (Unit u : graph) {
-            State in = pta.getFlowBefore(u);
-            State out = pta.getFlowAfter(u);
+        List<String> results = new ArrayList<>();
 
-            System.out.println("=================================");
-            System.out.println("Unit: " + u);
-            System.out.println("----------- IN -----------");
-            System.out.println(in);
-            System.out.println("----------- OUT ----------");
-            System.out.println(out);
+        for (Unit u : graph) {
+
+            State in = pta.getFlowBefore(u);
+
+            String r = redundant(u, in, body);
+
+            if (r != null)
+                results.add(r);
+        }
+
+        if (!results.isEmpty()) {
+
+            System.out.println(
+                    body.getMethod().getDeclaringClass().getName() + ":" +
+                            body.getMethod().getName());
+
+            for (String s : results)
+                System.out.println(s);
         }
     }
 }
