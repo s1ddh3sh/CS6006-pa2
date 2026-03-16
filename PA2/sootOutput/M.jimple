@@ -1,12 +1,13 @@
-class A extends java.lang.Object
+class M extends java.lang.Object
 {
-    public A f1;
+    int x;
+    int y;
 
     void <init>()
     {
-        A r0;
+        M r0;
 
-        r0 := @this: A;
+        r0 := @this: M;
 
         specialinvoke r0.<java.lang.Object: void <init>()>();
 

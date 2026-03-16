@@ -1,19 +1,53 @@
-class Node {
-    Node f1;
-    Node f2;
-    Node g;
-    Node() {}
+class M {
+    int x, y;
+}
+
+class N {
+    void foo(M mm) {
+        System.out.println(mm.x);
+        bar(mm);
+    }
+
+    void bar(M mm) {
+        System.out.println(mm.y);
+    }
+}
+
+class O {
+    void foo(M mm) {
+        System.out.println(mm.x);
+    }
+}
+
+class P extends O {
+    void foo(M mm) {
+        mm.x = 112;
+    }
 }
 
 public class Test {
     public static void main(String[] args) {
-        Node a = new Node();
-        a.f1 = new Node();
-        Node b = new Node();
-        b.f1 = new Node();
-        a.f2 = new Node();
-        Node c = a.f1;
-        a.f2 = a.f1;
-        b.f1 = a.f2;
+        {// Case 1
+            M o1 = new M();
+            o1.x = 8;
+            System.out.println(o1.x);
+        }
+
+        {// Case 2
+            M o2 = new M();
+            N o3 = new N();
+            o2.x = 27;
+            o2.y = 125;
+            o3.foo(o2);
+        }
+
+        {// Case3
+            M o4 = new M();
+            O o5 = new O();
+            o4.x = 343;
+            o5.foo(o4);
+        }
+
+        return;
     }
 }

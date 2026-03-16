@@ -1,494 +1,1031 @@
-Soot started on Fri Feb 20 10:39:37 IST 2026
-=================================
-Unit: r0 := @this: Test
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Soot started on Mon Mar 16 12:40:32 IST 2026
 
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: $r1 = <java.lang.System: java.io.PrintStream out>
+  IN:
+    Variables: [EMPTY]
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 2
 
-=================================
-Unit: specialinvoke r0.<java.lang.Object: void <init>()>()
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: $i0 = r0.<M: int x>
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 2
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
 
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0)
+  IN:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
 
-=================================
+Unit: virtualinvoke r2.<N: void bar(M)>(r0)
+  IN:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
+
 Unit: return
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+  IN:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
 
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: $r1 = <java.lang.System: java.io.PrintStream out>
+  IN:
+    Variables: [EMPTY]
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 2
 
-=================================
-Unit: r4 := @parameter0: java.lang.String[]
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: $i0 = r0.<M: int y>
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 2
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
 
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0)
+  IN:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
 
-=================================
-Unit: $r0 = new A
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
------------ OUT ----------
-STACK:
-  $r0 -> { Obj-8 }
-HEAP:
-  Obj-8 -> {
-  }
-
-=================================
-Unit: specialinvoke $r0.<A: void <init>()>()
------------ IN -----------
-STACK:
-  $r0 -> { Obj-8 }
-HEAP:
-  Obj-8 -> {
-  }
-
------------ OUT ----------
-STACK:
-  $r0 -> { Obj-8 }
-HEAP:
-  Obj-8 -> {
-  }
-
-=================================
-Unit: $r1 = new A
------------ IN -----------
-STACK:
-  $r0 -> { Obj-8 }
-HEAP:
-  Obj-8 -> {
-  }
-
------------ OUT ----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-  }
-
-=================================
-Unit: specialinvoke $r1.<A: void <init>()>()
------------ IN -----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-  }
-
------------ OUT ----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-  }
-
-=================================
-Unit: $r2 = new A
------------ IN -----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-  }
-
------------ OUT ----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r2 -> { Obj-11 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-  }
-  Obj-11 -> {
-  }
-
-=================================
-Unit: specialinvoke $r2.<A: void <init>()>()
------------ IN -----------
-STACK:
-  $r2 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-  }
-  Obj-11 -> {
-  }
-
------------ OUT ----------
-STACK:
-  $r2 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-  }
-  Obj-11 -> {
-  }
-
-=================================
-Unit: $r0.<A: A f1> = $r2
------------ IN -----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r2 -> { Obj-11 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-  }
-  Obj-11 -> {
-  }
-
------------ OUT ----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r2 -> { Obj-11 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
-=================================
-Unit: if $r0 != $r1 goto r6 = $r0.<A: A f1>
------------ IN -----------
-STACK:
-  $r2 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
------------ OUT ----------
-STACK:
-  $r2 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
-=================================
-Unit: r5 = $r0.<A: A f1>
------------ IN -----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r2 -> { Obj-11 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
------------ OUT ----------
-STACK:
-  r5 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r2 -> { Obj-11 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
-=================================
-Unit: goto [?= $r3 = $r0.<A: A f1>]
------------ IN -----------
-STACK:
-  r5 -> { Obj-11 }
-  $r2 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
------------ OUT ----------
-STACK:
-  r5 -> { Obj-11 }
-  $r2 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
-=================================
-Unit: r6 = $r0.<A: A f1>
------------ IN -----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r2 -> { Obj-11 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
------------ OUT ----------
-STACK:
-  $r0 -> { Obj-8 }
-  $r2 -> { Obj-11 }
-  $r1 -> { Obj-9 }
-  r6 -> { Obj-11 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
-=================================
-Unit: $r3 = $r0.<A: A f1>
------------ IN -----------
-STACK:
-  r5 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r2 -> { Obj-11 }
-  r6 -> { Obj-11 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
------------ OUT ----------
-STACK:
-  $r3 -> { Obj-11 }
-  r5 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r2 -> { Obj-11 }
-  r6 -> { Obj-11 }
-  $r1 -> { Obj-9 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
-
-=================================
 Unit: return
------------ IN -----------
-STACK:
-  $r3 -> { Obj-11 }
-  r5 -> { Obj-11 }
-  $r2 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-  r6 -> { Obj-11 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
+  IN:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $i0 @ line 3
+      $r1 @ line 2
 
------------ OUT ----------
-STACK:
-  $r3 -> { Obj-11 }
-  r5 -> { Obj-11 }
-  $r2 -> { Obj-11 }
-  $r0 -> { Obj-8 }
-  $r1 -> { Obj-9 }
-  r6 -> { Obj-11 }
-HEAP:
-  Obj-9 -> {
-  }
-  Obj-8 -> {
-      f1 -> { Obj-11 }
-  }
-  Obj-11 -> {
-  }
+Unit: $r1 = <java.lang.System: java.io.PrintStream out>
+  IN:
+    Variables: [EMPTY]
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 2
 
-=================================
-Unit: r0 := @this: A
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: $i0 = r0.<M: int x>
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 2
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 2
+      $i0 @ line 3
 
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0)
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 2
+      $i0 @ line 3
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 2
+      $i0 @ line 3
 
-=================================
-Unit: specialinvoke r0.<java.lang.Object: void <init>()>()
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
-=================================
 Unit: return
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 2
+      $i0 @ line 3
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 2
+      $i0 @ line 3
 
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: $r0 = new M
+  IN:
+    Variables: [EMPTY]
+  OUT:
+    Variables:
+      $r0 -> {AllocSite#1}
+    Reverse (site -> variables):
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r0 @ line 1
 
-=================================
-Unit: r0 := @this: Test$Node
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: specialinvoke $r0.<M: void <init>()>()
+  IN:
+    Variables:
+      $r0 -> {AllocSite#1}
+    Reverse (site -> variables):
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r0 @ line 1
+  OUT:
+    Variables:
+      $r0 -> {AllocSite#1}
+    Reverse (site -> variables):
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r0 @ line 1
 
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: $r0.<M: int x> = 8
+  IN:
+    Variables:
+      $r0 -> {AllocSite#1}
+    Reverse (site -> variables):
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r0 @ line 1
+  OUT:
+    Variables:
+      $r0 -> {AllocSite#1}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r0 @ line 1
 
-=================================
-Unit: specialinvoke r0.<java.lang.Object: void <init>()>()
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: $r1 = <java.lang.System: java.io.PrintStream out>
+  IN:
+    Variables:
+      $r0 -> {AllocSite#1}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r0 @ line 1
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r0 -> {AllocSite#1}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
 
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
+Unit: $i0 = $r0.<M: int x>
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r0 -> {AllocSite#1}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
 
-=================================
+Unit: virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0)
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+
+Unit: $r2 = new M
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r2 @ line 7
+
+Unit: specialinvoke $r2.<M: void <init>()>()
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r2 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r2 @ line 7
+
+Unit: $r3 = new N
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r2 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+
+Unit: specialinvoke $r3.<N: void <init>()>()
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+
+Unit: $r2.<M: int x> = 27
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+      AllocSite#7.x -> {AllocSite#11}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+
+Unit: $r2.<M: int y> = 125
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+      AllocSite#7.x -> {AllocSite#11}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#7.y -> {AllocSite#12}
+      AllocSite#1.x -> {AllocSite#3}
+      AllocSite#7.x -> {AllocSite#11}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+
+Unit: virtualinvoke $r3.<N: void foo(M)>($r2)
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#7.y -> {AllocSite#12}
+      AllocSite#1.x -> {AllocSite#3}
+      AllocSite#7.x -> {AllocSite#11}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+
+Unit: $r4 = new M
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r2 @ line 7
+      $r4 @ line 14
+
+Unit: specialinvoke $r4.<M: void <init>()>()
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+
+Unit: $r5 = new O
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r5 -> {AllocSite#16}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#16 -> {$r5}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r5 @ line 16
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+
+Unit: specialinvoke $r5.<O: void <init>()>()
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r5 -> {AllocSite#16}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#16 -> {$r5}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r5 @ line 16
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r5 -> {AllocSite#16}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#16 -> {$r5}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r5 @ line 16
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+
+Unit: $r4.<M: int x> = 343
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r5 -> {AllocSite#16}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#16 -> {$r5}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r5 @ line 16
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r5 -> {AllocSite#16}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#14.x -> {AllocSite#18}
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#16 -> {$r5}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r5 @ line 16
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+
+Unit: virtualinvoke $r5.<O: void foo(M)>($r4)
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r5 -> {AllocSite#16}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#14.x -> {AllocSite#18}
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#16 -> {$r5}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r5 @ line 16
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r5 -> {AllocSite#16}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#16 -> {$r5}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r5 @ line 16
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+
 Unit: return
------------ IN -----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
------------ OUT ----------
-STACK:
-  <empty>
-HEAP:
-  <empty>
-
-Soot finished on Fri Feb 20 10:39:37 IST 2026
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r5 -> {AllocSite#16}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#16 -> {$r5}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r5 @ line 16
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $r5 -> {AllocSite#16}
+      $r2 -> {AllocSite#7}
+      $r0 -> {AllocSite#1}
+      $i0 -> {AllocSite#3}
+      $r3 -> {AllocSite#9}
+      $r4 -> {AllocSite#14}
+    Fields:
+      AllocSite#1.x -> {AllocSite#3}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+      AllocSite#3 -> {$i0}
+      AllocSite#1 -> {$r0}
+      AllocSite#16 -> {$r5}
+      AllocSite#14 -> {$r4}
+      AllocSite#9 -> {$r3}
+      AllocSite#7 -> {$r2}
+    Last write line (locals):
+      $r1 @ line 4
+      $r5 @ line 16
+      $r2 @ line 7
+      $r0 @ line 1
+      $i0 @ line 5
+      $r3 @ line 9
+      $r4 @ line 14
+Soot finished on Mon Mar 16 12:40:33 IST 2026
 Soot has run for 0 min. 0 sec.
-Test:main
-18:$r3 = $r0.<A: A f1> r5
