@@ -1,6 +1,5 @@
 public class Test extends java.lang.Object
 {
-    int f1;
 
     public void <init>()
     {
@@ -15,45 +14,36 @@ public class Test extends java.lang.Object
 
     public static void main(java.lang.String[])
     {
-        Test $r0;
-        int i0, i1, i2;
-        java.lang.String[] r1;
+        A $r0, $r1, $r2, $r3, r5, r6;
+        java.lang.String[] r4;
 
-        r1 := @parameter0: java.lang.String[];
+        r4 := @parameter0: java.lang.String[];
 
-        $r0 = new Test;
+        $r0 = new A;
 
-        specialinvoke $r0.<Test: void <init>()>();
+        specialinvoke $r0.<A: void <init>()>();
 
-        $r0.<Test: int f1> = 10;
+        $r1 = new A;
 
-        i0 = $r0.<Test: int f1>;
+        specialinvoke $r1.<A: void <init>()>();
 
-        i1 = $r0.<Test: int f1>;
+        $r2 = new A;
 
-        virtualinvoke $r0.<Test: void foo()>();
+        specialinvoke $r2.<A: void <init>()>();
 
-        i2 = $r0.<Test: int f1>;
+        $r0.<A: A f1> = $r2;
 
-        return;
-    }
+        if $r0 != $r1 goto label1;
 
-    void foo()
-    {
-        Test $r0, r1;
-        int i0, i1;
+        r5 = $r0.<A: A f1>;
 
-        r1 := @this: Test;
+        goto label2;
 
-        $r0 = new Test;
+     label1:
+        r6 = $r0.<A: A f1>;
 
-        specialinvoke $r0.<Test: void <init>()>();
-
-        $r0.<Test: int f1> = 20;
-
-        i0 = $r0.<Test: int f1>;
-
-        i1 = $r0.<Test: int f1>;
+     label2:
+        $r3 = $r0.<A: A f1>;
 
         return;
     }

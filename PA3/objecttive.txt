@@ -1,0 +1,9 @@
+identify objs that are scalar replaceable, by flow sensitive intraporcedural
+1. safely allocatable in stack of method
+2. never used in manner requiring object identity(header)
+3. even if it escapes ot other method, it is just read and never modified.
+
+analysis must use soot Class Hierarchy Analysis (CHA) for call sites
+Assume : no recursion (direct/indrect)
+
+No instanceof, ref equality, or operations requiring headers
