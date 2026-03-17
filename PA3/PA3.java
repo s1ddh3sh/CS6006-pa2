@@ -7,7 +7,7 @@ public class PA3 {
 
         Options.v().set_keep_line_number(true);
 
-        SceneTransformer sceneTransformer = new AnalysisTransformer();
+        SceneTransformer sceneTransformer = new AnalysisTransformer_test();
         PackManager.v().getPack("wjtp").add(new Transform("wjtp.dfa", sceneTransformer));
 
         String[] sootArgs = {
