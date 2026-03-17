@@ -1,4 +1,73 @@
-Soot started on Tue Mar 17 19:59:19 IST 2026
+Soot started on Tue Mar 17 23:45:38 IST 2026
+
+Unit: $r1 = <java.lang.System: java.io.PrintStream out>
+  IN:
+    Variables: [EMPTY]
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 18
+
+Unit: $i0 = r0.<M: int x>
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 18
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 18
+      $i0 @ line 18
+
+Unit: virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0)
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 18
+      $i0 @ line 18
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 18
+      $i0 @ line 18
+
+Unit: return
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 18
+      $i0 @ line 18
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 18
+      $i0 @ line 18
 
 Unit: $r0 = new M
   IN:
@@ -94,8 +163,8 @@ Unit: $i0 = $r0.<M: int x>
       AllocSite#31 -> {$r0}
     Last write line (locals):
       $r1 @ line 33
-      $i0 @ line 33
       $r0 @ line 31
+      $i0 @ line 33
 
 Unit: virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0)
   IN:
@@ -148,8 +217,8 @@ Unit: $r2 = new M
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
@@ -168,8 +237,8 @@ Unit: specialinvoke $r2.<M: void <init>()>()
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
@@ -186,8 +255,8 @@ Unit: specialinvoke $r2.<M: void <init>()>()
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
@@ -206,8 +275,8 @@ Unit: $r3 = new N
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
@@ -224,10 +293,10 @@ Unit: $r3 = new N
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -239,18 +308,18 @@ Unit: $r3 = new N
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: specialinvoke $r3.<N: void <init>()>()
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -262,16 +331,16 @@ Unit: specialinvoke $r3.<N: void <init>()>()
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -283,18 +352,18 @@ Unit: specialinvoke $r3.<N: void <init>()>()
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: $r2.<M: int x> = 27
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -306,19 +375,19 @@ Unit: $r2.<M: int x> = 27
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
-      AllocSite#31.x -> {AllocSite#32}
       AllocSite#37.x -> {AllocSite#39}
+      AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
       AllocSite#38 -> {$r3}
       AllocSite#37 -> {$r2}
@@ -328,21 +397,21 @@ Unit: $r2.<M: int x> = 27
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: $r2.<M: int y> = 125
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
-      AllocSite#31.x -> {AllocSite#32}
       AllocSite#37.x -> {AllocSite#39}
+      AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
       AllocSite#38 -> {$r3}
       AllocSite#37 -> {$r2}
@@ -352,19 +421,19 @@ Unit: $r2.<M: int y> = 125
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
-      AllocSite#31.x -> {AllocSite#32}
       AllocSite#37.x -> {AllocSite#39}
+      AllocSite#31.x -> {AllocSite#32}
       AllocSite#37.y -> {AllocSite#40}
     Reverse (site -> variables):
       AllocSite#38 -> {$r3}
@@ -375,21 +444,21 @@ Unit: $r2.<M: int y> = 125
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: virtualinvoke $r3.<N: void foo(M)>($r2)
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
-      AllocSite#31.x -> {AllocSite#32}
       AllocSite#37.x -> {AllocSite#39}
+      AllocSite#31.x -> {AllocSite#32}
       AllocSite#37.y -> {AllocSite#40}
     Reverse (site -> variables):
       AllocSite#38 -> {$r3}
@@ -400,16 +469,16 @@ Unit: virtualinvoke $r3.<N: void foo(M)>($r2)
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -421,18 +490,18 @@ Unit: virtualinvoke $r3.<N: void foo(M)>($r2)
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: $r4 = new M
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -444,17 +513,17 @@ Unit: $r4 = new M
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -467,20 +536,20 @@ Unit: $r4 = new M
     Last write line (locals):
       $r1 @ line 33
       $r2 @ line 37
-      $r3 @ line 38
       $r4 @ line 45
       $i0 @ line 33
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: specialinvoke $r4.<M: void <init>()>()
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -492,19 +561,19 @@ Unit: specialinvoke $r4.<M: void <init>()>()
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -516,21 +585,21 @@ Unit: specialinvoke $r4.<M: void <init>()>()
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: $r5 = new O
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -542,20 +611,20 @@ Unit: $r5 = new O
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
       $r5 -> {AllocSite#46}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -568,23 +637,23 @@ Unit: $r5 = new O
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
       $r5 @ line 46
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: specialinvoke $r5.<O: void <init>()>()
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
       $r5 -> {AllocSite#46}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -597,21 +666,21 @@ Unit: specialinvoke $r5.<O: void <init>()>()
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
       $r5 @ line 46
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
       $r5 -> {AllocSite#46}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -624,23 +693,23 @@ Unit: specialinvoke $r5.<O: void <init>()>()
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
       $r5 @ line 46
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: $r4.<M: int x> = 343
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
       $r5 -> {AllocSite#46}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -653,24 +722,24 @@ Unit: $r4.<M: int x> = 343
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
       $r5 @ line 46
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
       $r5 -> {AllocSite#46}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
-      AllocSite#31.x -> {AllocSite#32}
       AllocSite#45.x -> {AllocSite#47}
+      AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
       AllocSite#38 -> {$r3}
       AllocSite#37 -> {$r2}
@@ -681,26 +750,26 @@ Unit: $r4.<M: int x> = 343
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
       $r5 @ line 46
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: virtualinvoke $r5.<O: void foo(M)>($r4)
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
       $r5 -> {AllocSite#46}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
-      AllocSite#31.x -> {AllocSite#32}
       AllocSite#45.x -> {AllocSite#47}
+      AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
       AllocSite#38 -> {$r3}
       AllocSite#37 -> {$r2}
@@ -711,21 +780,21 @@ Unit: virtualinvoke $r5.<O: void foo(M)>($r4)
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
       $r5 @ line 46
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
       $r5 -> {AllocSite#46}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -738,23 +807,23 @@ Unit: virtualinvoke $r5.<O: void foo(M)>($r4)
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
       $r5 @ line 46
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
 
 Unit: return
   IN:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
       $r5 -> {AllocSite#46}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -767,21 +836,21 @@ Unit: return
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
       $r5 @ line 46
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
+      $r3 @ line 38
   OUT:
     Variables:
       $r1 -> {UNKNOWN}
-      $r3 -> {AllocSite#38}
-      $r4 -> {AllocSite#45}
-      $r2 -> {AllocSite#37}
       $i0 -> {AllocSite#32}
       $r5 -> {AllocSite#46}
+      $r2 -> {AllocSite#37}
+      $r4 -> {AllocSite#45}
       $r0 -> {AllocSite#31}
+      $r3 -> {AllocSite#38}
     Fields:
       AllocSite#31.x -> {AllocSite#32}
     Reverse (site -> variables):
@@ -794,11 +863,179 @@ Unit: return
       AllocSite#45 -> {$r4}
     Last write line (locals):
       $r1 @ line 33
-      $r3 @ line 38
-      $r4 @ line 45
-      $r2 @ line 37
       $i0 @ line 33
       $r5 @ line 46
+      $r2 @ line 37
+      $r4 @ line 45
       $r0 @ line 31
-Soot finished on Tue Mar 17 19:59:20 IST 2026
+      $r3 @ line 38
+
+Unit: $r1 = <java.lang.System: java.io.PrintStream out>
+  IN:
+    Variables: [EMPTY]
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 7
+
+Unit: $i0 = r0.<M: int x>
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 7
+      $i0 @ line 7
+
+Unit: virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0)
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 7
+      $i0 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 7
+      $i0 @ line 7
+
+Unit: virtualinvoke r2.<N: void bar(M)>(r0)
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 7
+      $i0 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 7
+      $i0 @ line 7
+
+Unit: return
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 7
+      $i0 @ line 7
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+      $i0 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1, $i0}
+    Last write line (locals):
+      $r1 @ line 7
+      $i0 @ line 7
+
+Unit: $r1 = <java.lang.System: java.io.PrintStream out>
+  IN:
+    Variables: [EMPTY]
+  OUT:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 12
+
+Unit: $i0 = r0.<M: int y>
+  IN:
+    Variables:
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$r1}
+    Last write line (locals):
+      $r1 @ line 12
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $r1 @ line 12
+      $i0 @ line 12
+
+Unit: virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0)
+  IN:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $r1 @ line 12
+      $i0 @ line 12
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $r1 @ line 12
+      $i0 @ line 12
+
+Unit: return
+  IN:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $r1 @ line 12
+      $i0 @ line 12
+  OUT:
+    Variables:
+      $i0 -> {UNKNOWN}
+      $r1 -> {UNKNOWN}
+    Reverse (site -> variables):
+      UNKNOWN -> {$i0, $r1}
+    Last write line (locals):
+      $r1 @ line 12
+      $i0 @ line 12
+O39 = Y[]
+O45 = N
+O46 = N
+O24 = Y[]
+O47 = Y[]
+O37 = N
+O38 = N
+O40 = Y[]
+O31 = N
+O32 = N
+Soot finished on Tue Mar 17 23:45:39 IST 2026
 Soot has run for 0 min. 0 sec.

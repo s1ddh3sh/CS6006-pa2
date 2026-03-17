@@ -1,4 +1,6 @@
 import java.util.*;
+
+import polyglot.ast.Return;
 import soot.*;
 import soot.jimple.*;
 import soot.jimple.toolkits.callgraph.CallGraph;
@@ -7,22 +9,45 @@ import soot.jimple.toolkits.callgraph.Edge;
 
 public class AnalysisTransformer_test extends SceneTransformer {
     static CallGraph cg;
-    private static final AllocSite UNKNOWN_ALLOC = new AllocSite(-1, null, true);
+    private static final AllocSite UNKNOWN_ALLOC = new AllocSite(-1, null, true, -1);
     // private static boolean initialized = false;
-    private static final Map<String, Map<String, List<RedundantLoad>>> RESULTS = new TreeMap<>();
     private static final Map<Unit, AllocSite> allocSiteByUnit = new HashMap<>();
-    private static final Map<AllocSite, List<CallInvokeInfo>> passedToCalls = new HashMap<>();
+    private static final Map<AllocSite, EscapeStatus> escapeStatus = new HashMap<>();
+    private static final Map<AllocSite, Set<Integer>> rewriteLines = new HashMap<>();
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
         cg = Scene.v().getCallGraph();
 
-        var entryPoints = Scene.v().getEntryPoints();
+        for (SootClass sc : Scene.v().getApplicationClasses()) {
+            for (SootMethod method : sc.getMethods()) {
+                if (shouldAnalyze(method))
+                    analyzeMethod(method);
+            }
+        }
 
-        assert (entryPoints.size() == 1);
-        SootMethod entryMethod = entryPoints.get(0);
+        printResults();
+    }
 
-        analyzeMethod(entryMethod);
+    private void printResults() {
+        for (Map.Entry<Unit, AllocSite> entry : allocSiteByUnit.entrySet()) {
+            AllocSite info = entry.getValue();
+            EscapeStatus status = escapeStatus.getOrDefault(info, EscapeStatus.LOCAL);
+
+            String prefix = "O" + info.lineNumber + " = ";
+
+            if (status == EscapeStatus.ESCAPED) {
+                System.out.println(prefix + "N");
+            } else {
+                Set<Integer> lines = rewriteLines.getOrDefault(info, new HashSet<>());
+                if (lines.isEmpty()) {
+                    System.out.println(prefix + "Y[]");
+                } else {
+                    System.out.println(prefix + "Y" + lines.toString()
+                            .replace(" ", ""));
+                }
+            }
+        }
     }
 
     // }
@@ -35,6 +60,27 @@ public class AnalysisTransformer_test extends SceneTransformer {
         Map<Unit, PointsToState> ptsIn = new HashMap<>();
         Map<Unit, PointsToState> ptsOut = new HashMap<>();
         runPointsToAnalysis(graph, unitToIndex, ptsIn, ptsOut, method);
+    }
+
+    enum EscapeStatus {
+        LOCAL(0),
+        REWRITE(1),
+        ESCAPED(2);
+
+        private int level;
+
+        EscapeStatus(int level) {
+            this.level = level;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public boolean greaterThan(EscapeStatus other) {
+            return this.level > other.level;
+        }
+
     }
 
     private static boolean shouldAnalyze(SootMethod method) {
@@ -116,7 +162,33 @@ public class AnalysisTransformer_test extends SceneTransformer {
 
     private static void processInvokeExpr(PointsToState state, InvokeExpr invokeExpr, Unit callUnit,
             SootMethod method) {
-        // Queue<AllocSite> queue = new ArrayDeque<>();
+
+        Map<Integer, Set<AllocSite>> slotToPts = new HashMap<>();
+
+        if (invokeExpr instanceof InstanceInvokeExpr) {
+            Value base = ((InstanceInvokeExpr) invokeExpr).getBase();
+            if (base instanceof Local) {
+                slotToPts.put(-1, state.getVar((Local) base));
+            }
+        }
+        List<Value> args = invokeExpr.getArgs();
+        for (int i = 0; i < args.size(); i++) {
+            Value arg = args.get(i);
+            if (arg instanceof Local) {
+                slotToPts.put(i, state.getVar((Local) arg));
+            }
+        }
+
+        Set<AllocSite> passedInSites = new HashSet<>();
+        for (Set<AllocSite> pts : slotToPts.values()) {
+            for (AllocSite site : pts) {
+                if (!site.unknown)
+                    passedInSites.add(site);
+            }
+        }
+
+        if (passedInSites.isEmpty())
+            return;
 
         // receiver
         if (invokeExpr instanceof InstanceInvokeExpr) {
@@ -125,26 +197,255 @@ public class AnalysisTransformer_test extends SceneTransformer {
             if (base instanceof Local) {
                 Set<AllocSite> basePts = state.getVar((Local) base);
                 for (AllocSite site : basePts) {
-                    passedToCalls.computeIfAbsent(site, k -> new ArrayList<>())
-                            .add(new CallInvokeInfo(callUnit, -1, method));
+                    rewriteLines.computeIfAbsent(site, k -> new HashSet<>())
+                            .add(callUnit.getJavaSourceStartLineNumber());
                 }
             }
         }
 
         // args
-        List<Value> args = invokeExpr.getArgs();
+        args = invokeExpr.getArgs();
 
         for (int i = 0; i < args.size(); i++) {
             Value arg = args.get(i);
             if (arg instanceof Local) {
                 Set<AllocSite> argPts = state.getVar((Local) arg);
                 for (AllocSite site : argPts) {
-                    passedToCalls.computeIfAbsent(site, k -> new ArrayList<>())
-                            .add(new CallInvokeInfo(callUnit, i, method));
+                    rewriteLines.computeIfAbsent(site, k -> new HashSet<>())
+                            .add(callUnit.getJavaSourceStartLineNumber());
                 }
             }
         }
 
+        Iterator<Edge> edges = cg.edgesOutOf(callUnit);
+        while (edges.hasNext()) {
+            Edge edge = edges.next();
+            SootMethod callee = edge.tgt();
+
+            resolveCallee(callee, slotToPts, passedInSites);
+        }
+
+        // pointsTo continue
+        Queue<AllocSite> queue = new ArrayDeque<>();
+
+        if (invokeExpr instanceof InstanceInvokeExpr) {
+            InstanceInvokeExpr instanceInvoke = (InstanceInvokeExpr) invokeExpr;
+            Value base = instanceInvoke.getBase();
+            if (base instanceof Local) {
+                Set<AllocSite> basePts = state.getVar((Local) base);
+                for (AllocSite site : basePts) {
+                    if (!site.equals(UNKNOWN_ALLOC)) {
+                        queue.add(site);
+                    }
+                }
+            }
+        }
+
+        for (Value arg : invokeExpr.getArgs()) {
+            if (arg instanceof Local) {
+                Set<AllocSite> argPts = state.getVar((Local) arg);
+                for (AllocSite site : argPts) {
+                    if (!site.equals(UNKNOWN_ALLOC)) {
+                        queue.add(site);
+                    }
+                }
+            }
+        }
+
+        Set<AllocSite> processed = new HashSet<>();
+        while (!queue.isEmpty()) {
+            AllocSite site = queue.poll();
+            if (processed.contains(site)) {
+                continue;
+            }
+            processed.add(site);
+
+            Map<SootField, Set<AllocSite>> fieldsToProcess = new HashMap<>();
+            Set<SootField> fields = state.getAllFields(site);
+            for (SootField field : fields) {
+                Set<AllocSite> fieldPts = state.getField(site, field);
+                if (!fieldPts.isEmpty()) {
+                    fieldsToProcess.put(field, new HashSet<>(fieldPts));
+                }
+            }
+
+            state.removeAllFields(site);
+
+            for (Map.Entry<SootField, Set<AllocSite>> entry : fieldsToProcess.entrySet()) {
+                for (AllocSite targetSite : entry.getValue()) {
+                    if (!targetSite.equals(UNKNOWN_ALLOC) && !processed.contains(targetSite)) {
+                        queue.add(targetSite);
+                    }
+                }
+            }
+        }
+
+    }
+
+    private static void resolveCallee(SootMethod callee, Map<Integer, Set<AllocSite>> slotToPts,
+            Set<AllocSite> passedInSites) {
+        if (!shouldAnalyze(callee)) {
+            for (AllocSite site : passedInSites) {
+                escapeStatus.merge(site, EscapeStatus.ESCAPED,
+                        (a, b) -> a.level >= b.level ? a : b);
+            }
+            return;
+        }
+
+        Body body = callee.retrieveActiveBody();
+
+        Map<Local, Set<AllocSite>> localToPassedPts = new HashMap<>();
+        for (Unit u : body.getUnits()) {
+            if (!(u instanceof IdentityStmt))
+                continue;
+            IdentityStmt id = (IdentityStmt) u;
+            if (!(id.getLeftOp() instanceof Local))
+                continue;
+            Local lhsLocal = (Local) id.getLeftOp();
+            if (id.getRightOp() instanceof ThisRef) {
+                Set<AllocSite> pts = slotToPts.get(-1);
+                if (pts != null)
+                    localToPassedPts.put(lhsLocal, pts);
+            } else if (id.getRightOp() instanceof ParameterRef) {
+                int idx = ((ParameterRef) id.getRightOp()).getIndex();
+                Set<AllocSite> pts = slotToPts.get(idx);
+                if (pts != null)
+                    localToPassedPts.put(lhsLocal, pts);
+            }
+        }
+
+        for (Unit u : body.getUnits()) {
+            if (u instanceof InvokeStmt) {
+                InvokeExpr nestedInvoke = ((InvokeStmt) u).getInvokeExpr();
+                handleNestedInvoke(nestedInvoke, u, localToPassedPts, passedInSites);
+                continue;
+            }
+
+            if (!(u instanceof AssignStmt))
+                continue;
+
+            AssignStmt assign = (AssignStmt) u;
+            Value lhs = assign.getLeftOp();
+            Value rhs = assign.getRightOp();
+
+            if (rhs instanceof InvokeExpr) {
+                handleNestedInvoke((InvokeExpr) rhs, u, localToPassedPts, passedInSites);
+                continue;
+            }
+
+            if (lhs instanceof Local && rhs instanceof Local) {
+                Set<AllocSite> pts = localToPassedPts.get((Local) rhs);
+                if (pts != null) {
+                    localToPassedPts.put((Local) lhs, pts);
+                }
+                continue;
+            }
+
+            // staticref
+            if (lhs instanceof StaticFieldRef && rhs instanceof Local) {
+                Set<AllocSite> pts = localToPassedPts.get((Local) rhs);
+
+                if (pts != null) {
+                    for (AllocSite site : pts) {
+                        if (!site.unknown) {
+                            escapeStatus.merge(site, EscapeStatus.ESCAPED,
+                                    (a, b) -> a.level >= b.level ? a : b);
+                        }
+                    }
+                }
+                continue;
+            }
+
+            // x.f = y
+            if (lhs instanceof InstanceFieldRef && rhs instanceof Local) {
+                Local base = (Local) ((InstanceFieldRef) lhs).getBase();
+
+                if (localToPassedPts.containsKey(base)) {
+                    Set<AllocSite> pts = localToPassedPts.get((Local) rhs);
+                    if (pts != null) {
+                        for (AllocSite site : pts) {
+                            if (!site.unknown) {
+                                escapeStatus.merge(site, EscapeStatus.ESCAPED,
+                                        (a, b) -> a.level >= b.level ? a : b);
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
+
+            // return
+
+            if (u instanceof ReturnStmt) {
+                Value retVal = ((ReturnStmt) u).getOp();
+                if (retVal instanceof Local) {
+                    Set<AllocSite> pts = localToPassedPts.get((Local) retVal);
+                    if (pts != null) {
+                        for (AllocSite site : pts) {
+                            if (!site.unknown) {
+                                escapeStatus.merge(site, EscapeStatus.ESCAPED,
+                                        (a, b) -> a.level >= b.level ? a : b);
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+    }
+
+    private static void handleNestedInvoke(InvokeExpr invokeExpr, Unit callUnit,
+            Map<Local, Set<AllocSite>> localToPassedPts,
+            Set<AllocSite> passedInSites) {
+
+        Map<Integer, Set<AllocSite>> nestedSlotToPts = new HashMap<>();
+        Set<AllocSite> nestedPassedInSites = new HashSet<>();
+
+        // receiver
+        if (invokeExpr instanceof InstanceInvokeExpr) {
+            Value base = ((InstanceInvokeExpr) invokeExpr).getBase();
+            if (base instanceof Local) {
+                Set<AllocSite> pts = localToPassedPts.get((Local) base);
+                if (pts != null) {
+                    nestedSlotToPts.put(-1, pts);
+                    for (AllocSite site : pts) {
+                        if (!site.unknown) {
+                            nestedPassedInSites.add(site);
+                            rewriteLines.computeIfAbsent(site, k -> new HashSet<>())
+                                    .add(callUnit.getJavaSourceStartLineNumber());
+                        }
+                    }
+                }
+            }
+        }
+
+        List<Value> args = invokeExpr.getArgs();
+        for (int i = 0; i < args.size(); i++) {
+            Value arg = args.get(i);
+            if (arg instanceof Local) {
+                Set<AllocSite> pts = localToPassedPts.get((Local) arg);
+                if (pts != null) {
+                    nestedSlotToPts.put(i, pts);
+                    for (AllocSite site : pts) {
+                        if (!site.unknown) {
+                            nestedPassedInSites.add(site);
+                            rewriteLines.computeIfAbsent(site, k -> new HashSet<>())
+                                    .add(callUnit.getJavaSourceStartLineNumber());
+                        }
+                    }
+                }
+            }
+        }
+
+        if (nestedPassedInSites.isEmpty())
+            return;
+
+        Iterator<Edge> edges = cg.edgesOutOf(callUnit);
+        while (edges.hasNext()) {
+            SootMethod nestedCallee = edges.next().tgt();
+            resolveCallee(nestedCallee, nestedSlotToPts, nestedPassedInSites);
+        }
     }
 
     private static PointsToState transferPointsTo(
@@ -189,10 +490,14 @@ public class AnalysisTransformer_test extends SceneTransformer {
             Local left = (Local) lhs;
             if (rhs instanceof AnyNewExpr) {
                 outState.setVar(left, setOf(getAllocSite(unit, unitToIndex)));
+                escapeStatus.put(getAllocSite(unit, unitToIndex), EscapeStatus.LOCAL);
+                rewriteLines.put(getAllocSite(unit, unitToIndex), new HashSet<>());
             } else if (rhs instanceof Local) {
                 outState.setVar(left, outState.getVar((Local) rhs));
             } else if (rhs instanceof StaticFieldRef) {
                 outState.setVar(left, setOf(UNKNOWN_ALLOC));
+            } else if (rhs instanceof Constant) {
+                outState.setVar(left, Collections.emptySet());
             } else if (rhs instanceof InstanceFieldRef) {
                 InstanceFieldRef fieldRef = (InstanceFieldRef) rhs;
                 Local base = (Local) fieldRef.getBase();
@@ -250,39 +555,6 @@ public class AnalysisTransformer_test extends SceneTransformer {
         }
 
         return outState;
-    }
-
-    private static void printResults() {
-        for (Map.Entry<String, Map<String, List<RedundantLoad>>> classEntry : RESULTS.entrySet()) {
-            String className = classEntry.getKey();
-            for (Map.Entry<String, List<RedundantLoad>> methodEntry : classEntry.getValue().entrySet()) {
-                List<RedundantLoad> loads = methodEntry.getValue();
-                if (loads.isEmpty()) {
-                    continue;
-                }
-                String methodSubSig = methodEntry.getKey();
-                String methodName = methodSubSig;
-                int spaceIdx = methodSubSig.indexOf(' ');
-                int parenIdx = methodSubSig.indexOf('(');
-                if (spaceIdx != -1 && parenIdx != -1 && spaceIdx < parenIdx) {
-                    methodName = methodSubSig.substring(spaceIdx + 1, parenIdx);
-                } else if (parenIdx != -1) {
-                    methodName = methodSubSig.substring(0, parenIdx);
-                }
-
-                System.out.print(className + ":");
-                System.out.println(methodName);
-                for (RedundantLoad load : loads) {
-                    System.out.println(
-                            ""
-                                    + load.line
-                                    + ":"
-                                    + load.statement
-                                    + " "
-                                    + load.replacement);
-                }
-            }
-        }
     }
 
     private static void printPointsToState(String label, PointsToState state) {
@@ -372,19 +644,17 @@ public class AnalysisTransformer_test extends SceneTransformer {
         AllocSite site = allocSiteByUnit.get(unit);
         if (site == null) {
             int id = unitToIndex.get(unit);
-            site = new AllocSite(id, unit, false);
+            site = new AllocSite(id, unit, false, id);
             allocSiteByUnit.put(unit, site);
         }
         return site;
     }
 
     static final class CallInvokeInfo {
-        final Unit callUnit;
         final int argIndex;
         final SootMethod containingMethod;
 
-        CallInvokeInfo(Unit callUnit, int argIndex, SootMethod containingMethod) {
-            this.callUnit = callUnit;
+        CallInvokeInfo(int argIndex, SootMethod containingMethod) {
             this.argIndex = argIndex;
             this.containingMethod = containingMethod;
         }
@@ -394,11 +664,13 @@ public class AnalysisTransformer_test extends SceneTransformer {
         private final int id;
         private final Unit unit;
         private final boolean unknown;
+        private int lineNumber;
 
-        AllocSite(int id, Unit unit, boolean unknown) {
+        AllocSite(int id, Unit unit, boolean unknown, int lineNumber) {
             this.id = id;
             this.unit = unit;
             this.unknown = unknown;
+            this.lineNumber = lineNumber;
         }
 
         @Override
@@ -410,7 +682,7 @@ public class AnalysisTransformer_test extends SceneTransformer {
                 return false;
             }
             AllocSite other = (AllocSite) obj;
-            return id == other.id && unknown == other.unknown;
+            return id == other.id && unknown == other.unknown && lineNumber == other.lineNumber;
         }
 
         @Override
