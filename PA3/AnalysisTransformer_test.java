@@ -151,7 +151,7 @@ public class AnalysisTransformer_test extends SceneTransformer {
                 markEscape(state.getVar((Local) rhs));
             }
         }
-        propagateEscape(inMap);
+        propagateEscape(graph, inMap);
     }
 
     private static void runEscapeAnalysis(UnitGraph graph, Map<Unit, PointsToState> inMap, boolean isCallee) {
@@ -206,7 +206,7 @@ public class AnalysisTransformer_test extends SceneTransformer {
 
             }
         }
-        propagateEscape(inMap);
+        propagateEscape(graph, inMap);
     }
 
     private static boolean allocatedInThisMethod(AllocSite site, UnitGraph graph) {
@@ -218,12 +218,13 @@ public class AnalysisTransformer_test extends SceneTransformer {
         return false;
     }
 
-    private static void propagateEscape(Map<Unit, PointsToState> inMap) {
-        PointsToState state = null;
-        for (PointsToState s : inMap.values()) {
-            if (s != null)
-                state = s;
-        }
+    private static void propagateEscape(UnitGraph graph, Map<Unit, PointsToState> inMap) {
+        Unit lasUnit = graph.getBody().getUnits().getLast();
+        PointsToState state = inMap.get(lasUnit);
+        // for (PointsToState s : inMap.values()) {
+        //     if (s != null)
+        //         state = s;
+        // }
         if (state == null)
             return;
 
