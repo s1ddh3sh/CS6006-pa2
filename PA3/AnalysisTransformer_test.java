@@ -16,7 +16,6 @@ public class AnalysisTransformer_test extends SceneTransformer {
 
     private static final Map<Integer, AllocSite> totalAllocSites = new HashMap<>();
 
-    private static boolean isMain = false;
     private static int totalTargets = 0;
     private static int processedTargets = 0;
 
@@ -28,7 +27,7 @@ public class AnalysisTransformer_test extends SceneTransformer {
             for (SootMethod method : sc.getMethods()) {
                 if (shouldAnalyze(method)) {
                     totalTargets++;
-                    analyzeMethod(method, null);
+                    analyzeMethod(method);
                 }
             }
         }
@@ -59,14 +58,14 @@ public class AnalysisTransformer_test extends SceneTransformer {
     }
 
     // }
-    void analyzeMethod(SootMethod method, PointsToState entryState) {
+    void analyzeMethod(SootMethod method) {
 
         Body body = method.retrieveActiveBody();
 
         UnitGraph graph = new BriefUnitGraph(body);
         Map<Unit, PointsToState> ptsIn = new HashMap<>();
         Map<Unit, PointsToState> ptsOut = new HashMap<>();
-        runPointsToAnalysis(graph, ptsIn, ptsOut, method, entryState);
+        runPointsToAnalysis(graph, ptsIn, ptsOut, method, false);
         processedTargets++;
     }
 
@@ -105,22 +104,17 @@ public class AnalysisTransformer_test extends SceneTransformer {
     private static void runPointsToAnalysis(
             UnitGraph graph,
             Map<Unit, PointsToState> inMap,
-            Map<Unit, PointsToState> outMap, SootMethod method, PointsToState entryState) {
+            Map<Unit, PointsToState> outMap, SootMethod method, boolean isCallee) {
+
         for (Unit unit : graph) {
-            inMap.put(unit, PointsToState.empty());
+            if (!inMap.containsKey(unit))
+                inMap.put(unit, PointsToState.empty());
             outMap.put(unit, PointsToState.empty());
         }
 
-        if (entryState != null) {
-            List<Unit> heads = graph.getHeads();
-            for (Unit head : heads) {
-                inMap.put(head, entryState.copy());
-                outMap.put(head, entryState.copy());
-            }
-            if (!heads.isEmpty()) {
-                runEscapeAnalysis(heads, graph);
-            }
-        }
+        // if (isCallee) {
+        //     runEscapeAnalysis(graph, inMap);
+        // }
 
         Deque<Unit> worklist = new ArrayDeque<>();
         Set<Unit> visited = new HashSet<>();
@@ -171,32 +165,36 @@ public class AnalysisTransformer_test extends SceneTransformer {
 
     private static void processInvokeExpr(PointsToState state, InvokeExpr invokeExpr, Unit callUnit) {
 
-        Map<Integer, Set<AllocSite>> slotToPts = new HashMap<>();
+        Iterator<Edge> edges = cg.edgesOutOf(callUnit);
 
-        if (invokeExpr instanceof InstanceInvokeExpr) {
-            Value base = ((InstanceInvokeExpr) invokeExpr).getBase();
-            if (base instanceof Local) {
-                slotToPts.put(-1, state.getVar((Local) base));
-            }
-        }
-        List<Value> args = invokeExpr.getArgs();
-        for (int i = 0; i < args.size(); i++) {
-            Value arg = args.get(i);
-            if (arg instanceof Local) {
-                slotToPts.put(i, state.getVar((Local) arg));
-            }
-        }
-
-        Set<AllocSite> passedInSites = new HashSet<>();
-        for (Set<AllocSite> pts : slotToPts.values()) {
-            for (AllocSite site : pts) {
-                if (!site.unknown)
-                    passedInSites.add(site);
-            }
-        }
-
-        if (passedInSites.isEmpty())
+        if (!edges.hasNext())
             return;
+
+        while (edges.hasNext()) {
+            Edge edge = edges.next();
+            SootMethod target = edge.tgt();
+
+            if (!shouldAnalyze(target))
+                continue;
+
+            PointsToState calleeState = buildCalleeState(state, invokeExpr, target);
+
+            Body calleeBody = target.retrieveActiveBody();
+            UnitGraph graph = new BriefUnitGraph(calleeBody);
+
+            Map<Unit, PointsToState> calleePtsIn = new HashMap<>();
+            Map<Unit, PointsToState> calleePtsOut = new HashMap<>();
+
+            Unit firstUnit = calleeBody.getUnits().getFirst();
+            calleePtsIn.put(firstUnit, calleeState);
+
+            runPointsToAnalysis(graph, calleePtsIn, calleePtsOut, target, true);
+
+            Unit lastUnit = calleeBody.getUnits().getLast();
+            PointsToState calleeOutState = calleePtsOut.get(lastUnit);
+
+            mergeCalleeState(state, calleeOutState, invokeExpr, target);
+        }
 
         // receiver
         if (invokeExpr instanceof InstanceInvokeExpr) {
@@ -212,7 +210,7 @@ public class AnalysisTransformer_test extends SceneTransformer {
         }
 
         // args
-        args = invokeExpr.getArgs();
+        List<Value> args = invokeExpr.getArgs();
 
         for (int i = 0; i < args.size(); i++) {
             Value arg = args.get(i);
@@ -224,236 +222,132 @@ public class AnalysisTransformer_test extends SceneTransformer {
                 }
             }
         }
+    }
 
-        Iterator<Edge> edges = cg.edgesOutOf(callUnit);
-        while (edges.hasNext()) {
-            Edge edge = edges.next();
-            SootMethod callee = edge.tgt();
+    private static void mergeCalleeState(PointsToState callerState, PointsToState calleeState, InvokeExpr invokeExpr,
+            SootMethod target) {
+        if (calleeState == null)
+            return;
 
-            resolveCallee(callee, slotToPts, passedInSites);
-        }
-
-        // pointsTo continue
-        Queue<AllocSite> queue = new ArrayDeque<>();
-
+        Set<AllocSite> passedSites = new HashSet<>();
         if (invokeExpr instanceof InstanceInvokeExpr) {
-            InstanceInvokeExpr instanceInvoke = (InstanceInvokeExpr) invokeExpr;
-            Value base = instanceInvoke.getBase();
-            if (base instanceof Local) {
-                Set<AllocSite> basePts = state.getVar((Local) base);
-                for (AllocSite site : basePts) {
-                    if (!site.equals(UNKNOWN_ALLOC)) {
-                        queue.add(site);
-                    }
+            Value receiver = ((InstanceInvokeExpr) invokeExpr).getBase();
+            if (receiver instanceof Local) {
+                Set<AllocSite> pts = callerState.getVar((Local) receiver);
+                for (AllocSite site : pts) {
+                    if (!site.equals(UNKNOWN_ALLOC))
+                        passedSites.add(site);
                 }
             }
         }
 
         for (Value arg : invokeExpr.getArgs()) {
             if (arg instanceof Local) {
-                Set<AllocSite> argPts = state.getVar((Local) arg);
-                for (AllocSite site : argPts) {
-                    if (!site.equals(UNKNOWN_ALLOC)) {
-                        queue.add(site);
+                Set<AllocSite> pts = callerState.getVar((Local) arg);
+                for (AllocSite site : pts) {
+                    if (!site.equals(UNKNOWN_ALLOC))
+                        passedSites.add(site);
+                }
+            }
+        }
+
+        Deque<AllocSite> worklist = new ArrayDeque<>(passedSites);
+        Set<AllocSite> visited = new HashSet<>(passedSites);
+
+        while (!worklist.isEmpty()) {
+            AllocSite site = worklist.poll();
+            for (SootField f : calleeState.getAllFields(site)) {
+                for (AllocSite reachable : calleeState.getField(site, f)) {
+                    if (!reachable.equals(UNKNOWN_ALLOC) && visited.add(reachable)) {
+                        passedSites.add(reachable);
+                        worklist.add(reachable);
                     }
                 }
             }
         }
 
-        Set<AllocSite> processed = new HashSet<>();
-        while (!queue.isEmpty()) {
-            AllocSite site = queue.poll();
-            if (processed.contains(site)) {
-                continue;
-            }
-            processed.add(site);
+        for (AllocSite site : passedSites) {
+            Set<SootField> calleeFields = calleeState.getAllFields(site);
+            Set<SootField> callerFields = callerState.getAllFields(site);
 
-            Map<SootField, Set<AllocSite>> fieldsToProcess = new HashMap<>();
-            Set<SootField> fields = state.getAllFields(site);
-            for (SootField field : fields) {
-                Set<AllocSite> fieldPts = state.getField(site, field);
-                if (!fieldPts.isEmpty()) {
-                    fieldsToProcess.put(field, new HashSet<>(fieldPts));
+            for (SootField field : calleeFields) {
+                Set<AllocSite> calleeFieldPts = calleeState.getField(site, field);
+                callerState.setField(site, field, calleeFieldPts);
+            }
+
+            for (SootField field : callerFields) {
+                if (!calleeFields.contains(field)) {
+                    callerState.setField(site, field, setOf(UNKNOWN_ALLOC));
                 }
             }
 
-            state.removeAllFields(site);
-
-            for (Map.Entry<SootField, Set<AllocSite>> entry : fieldsToProcess.entrySet()) {
-                for (AllocSite targetSite : entry.getValue()) {
-                    if (!targetSite.equals(UNKNOWN_ALLOC) && !processed.contains(targetSite)) {
-                        queue.add(targetSite);
-                    }
-                }
-            }
         }
-
     }
 
-    private static void resolveCallee(SootMethod callee, Map<Integer, Set<AllocSite>> slotToPts,
-            Set<AllocSite> passedInSites) {
-        if (!shouldAnalyze(callee)) {
-            for (AllocSite site : passedInSites) {
-                escapeStatus.merge(site, EscapeStatus.ESCAPED,
-                        (a, b) -> a.level >= b.level ? a : b);
+    private static PointsToState buildCalleeState(PointsToState callerState, InvokeExpr invokeExpr, SootMethod target) {
+        PointsToState calleeState = callerState.copy();
+
+        Body calleeBody = target.retrieveActiveBody();
+
+        // this ref
+        if (invokeExpr instanceof InstanceInvokeExpr) {
+            Value receiverVal = ((InstanceInvokeExpr) invokeExpr).getBase();
+
+            if (receiverVal instanceof Local) {
+                Set<AllocSite> receiverPts = callerState.getVar((Local) receiverVal);
+
+                Local thisLocal = getThisLocal(calleeBody);
+
+                if (thisLocal != null) {
+                    calleeState.setVar(thisLocal, receiverPts);
+                }
             }
-            return;
         }
+        // args
+        List<Value> args = invokeExpr.getArgs();
+        for (int i = 0; i < args.size(); i++) {
+            Value arg = args.get(i);
 
-        Body body = callee.retrieveActiveBody();
+            Set<AllocSite> argPts;
+            if (arg instanceof Local) {
+                argPts = callerState.getVar((Local) arg);
+            } else {
+                argPts = setOf(UNKNOWN_ALLOC);
+            }
+            Local paramLocal = getParamLocal(calleeBody, i);
 
-        Map<Local, Set<AllocSite>> localToPassedPts = new HashMap<>();
+            if (paramLocal != null) {
+                calleeState.setVar(paramLocal, argPts);
+            }
+        }
+        return calleeState;
+    }
+
+    private static Local getThisLocal(Body body) {
         for (Unit u : body.getUnits()) {
             if (!(u instanceof IdentityStmt))
                 continue;
             IdentityStmt id = (IdentityStmt) u;
-            if (!(id.getLeftOp() instanceof Local))
-                continue;
-            Local lhsLocal = (Local) id.getLeftOp();
             if (id.getRightOp() instanceof ThisRef) {
-                Set<AllocSite> pts = slotToPts.get(-1);
-                if (pts != null)
-                    localToPassedPts.put(lhsLocal, pts);
-            } else if (id.getRightOp() instanceof ParameterRef) {
-                int idx = ((ParameterRef) id.getRightOp()).getIndex();
-                Set<AllocSite> pts = slotToPts.get(idx);
-                if (pts != null)
-                    localToPassedPts.put(lhsLocal, pts);
+                return (Local) id.getLeftOp();
             }
         }
-
-        for (Unit u : body.getUnits()) {
-            if (u instanceof InvokeStmt) {
-                InvokeExpr nestedInvoke = ((InvokeStmt) u).getInvokeExpr();
-                handleNestedInvoke(nestedInvoke, u, localToPassedPts, passedInSites);
-                continue;
-            }
-
-            if (!(u instanceof AssignStmt))
-                continue;
-
-            AssignStmt assign = (AssignStmt) u;
-            Value lhs = assign.getLeftOp();
-            Value rhs = assign.getRightOp();
-
-            if (rhs instanceof InvokeExpr) {
-                handleNestedInvoke((InvokeExpr) rhs, u, localToPassedPts, passedInSites);
-                continue;
-            }
-
-            if (lhs instanceof Local && rhs instanceof Local) {
-                Set<AllocSite> pts = localToPassedPts.get((Local) rhs);
-                if (pts != null) {
-                    localToPassedPts.put((Local) lhs, pts);
-                }
-                continue;
-            }
-
-            // staticref
-            if (lhs instanceof StaticFieldRef && rhs instanceof Local) {
-                Set<AllocSite> pts = localToPassedPts.get((Local) rhs);
-
-                if (pts != null) {
-                    for (AllocSite site : pts) {
-                        if (!site.unknown) {
-                            escapeStatus.merge(site, EscapeStatus.ESCAPED,
-                                    (a, b) -> a.level >= b.level ? a : b);
-                        }
-                    }
-                }
-                continue;
-            }
-
-            // x.f = y
-            if (lhs instanceof InstanceFieldRef && rhs instanceof Local) {
-                Local base = (Local) ((InstanceFieldRef) lhs).getBase();
-
-                if (localToPassedPts.containsKey(base)) {
-                    Set<AllocSite> pts = localToPassedPts.get((Local) rhs);
-                    if (pts != null) {
-                        for (AllocSite site : pts) {
-                            if (!site.unknown) {
-                                escapeStatus.merge(site, EscapeStatus.ESCAPED,
-                                        (a, b) -> a.level >= b.level ? a : b);
-                            }
-                        }
-                    }
-                }
-                continue;
-            }
-
-            // return
-
-            if (u instanceof ReturnStmt) {
-                Value retVal = ((ReturnStmt) u).getOp();
-                if (retVal instanceof Local) {
-                    Set<AllocSite> pts = localToPassedPts.get((Local) retVal);
-                    if (pts != null) {
-                        for (AllocSite site : pts) {
-                            if (!site.unknown) {
-                                escapeStatus.merge(site, EscapeStatus.ESCAPED,
-                                        (a, b) -> a.level >= b.level ? a : b);
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-
+        return null;
     }
 
-    private static void handleNestedInvoke(InvokeExpr invokeExpr, Unit callUnit,
-            Map<Local, Set<AllocSite>> localToPassedPts,
-            Set<AllocSite> passedInSites) {
-
-        Map<Integer, Set<AllocSite>> nestedSlotToPts = new HashMap<>();
-        Set<AllocSite> nestedPassedInSites = new HashSet<>();
-
-        // receiver
-        if (invokeExpr instanceof InstanceInvokeExpr) {
-            Value base = ((InstanceInvokeExpr) invokeExpr).getBase();
-            if (base instanceof Local) {
-                Set<AllocSite> pts = localToPassedPts.get((Local) base);
-                if (pts != null) {
-                    nestedSlotToPts.put(-1, pts);
-                    for (AllocSite site : pts) {
-                        if (!site.unknown) {
-                            nestedPassedInSites.add(site);
-                            rewriteLines.computeIfAbsent(site, k -> new HashSet<>())
-                                    .add(callUnit.getJavaSourceStartLineNumber());
-                        }
-                    }
+    private static Local getParamLocal(Body body, int index) {
+        for (Unit u : body.getUnits()) {
+            if (!(u instanceof IdentityStmt))
+                continue;
+            IdentityStmt id = (IdentityStmt) u;
+            if (id.getRightOp() instanceof ParameterRef) {
+                ParameterRef pr = (ParameterRef) id.getRightOp();
+                if (pr.getIndex() == index) {
+                    return (Local) id.getLeftOp();
                 }
             }
         }
-
-        List<Value> args = invokeExpr.getArgs();
-        for (int i = 0; i < args.size(); i++) {
-            Value arg = args.get(i);
-            if (arg instanceof Local) {
-                Set<AllocSite> pts = localToPassedPts.get((Local) arg);
-                if (pts != null) {
-                    nestedSlotToPts.put(i, pts);
-                    for (AllocSite site : pts) {
-                        if (!site.unknown) {
-                            nestedPassedInSites.add(site);
-                            rewriteLines.computeIfAbsent(site, k -> new HashSet<>())
-                                    .add(callUnit.getJavaSourceStartLineNumber());
-                        }
-                    }
-                }
-            }
-        }
-
-        if (nestedPassedInSites.isEmpty())
-            return;
-
-        Iterator<Edge> edges = cg.edgesOutOf(callUnit);
-        while (edges.hasNext()) {
-            SootMethod nestedCallee = edges.next().tgt();
-            resolveCallee(nestedCallee, nestedSlotToPts, nestedPassedInSites);
-        }
+        return null;
     }
 
     private static PointsToState transferPointsTo(
