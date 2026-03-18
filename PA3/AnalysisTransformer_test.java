@@ -8,10 +8,10 @@ import soot.jimple.toolkits.callgraph.Edge;
 
 public class AnalysisTransformer_test extends SceneTransformer {
     static CallGraph cg;
-    private static final AllocSite UNKNOWN_ALLOC = new AllocSite(-1, true, -1);
+    private static final AllocSite UNKNOWN_ALLOC = new AllocSite(-1, true, -1, null);
     private static final Map<AllocSite, EscapeStatus> escapeStatus = new HashMap<>();
     private static final Map<AllocSite, Set<Integer>> rewriteLines = new HashMap<>();
-    private static final Map<Integer, AllocSite> totalAllocSites = new HashMap<>();
+    private static final Map<Integer, AllocSite> totalAllocSites = new TreeMap<>();
     private static int totalTargets = 0;
     private static int processedTargets = 0;
 
@@ -77,7 +77,7 @@ public class AnalysisTransformer_test extends SceneTransformer {
             return false;
         }
         String name = method.getName();
-        return !"<init>".equals(name) && !"<clinit>".equals(name);
+        return !"<clinit>".equals(name);
     }
 
     private static void runPointsToAnalysis(
@@ -110,12 +110,12 @@ public class AnalysisTransformer_test extends SceneTransformer {
             PointsToState inState = mergePointsTo(graph.getPredsOf(unit), inMap, outMap, visited, unit);
             PointsToState outState = transferPointsTo(unit, inState);
             visited.add(unit);
+            System.out.println("\nUnit: " + unit);
+            printPointsToState("IN", inState);
+            printPointsToState("OUT", outState);
             if (!outState.equals(outMap.get(unit))) {
                 inMap.put(unit, inState);
                 outMap.put(unit, outState);
-                // System.out.println("\nUnit: " + unit);
-                // printPointsToState("IN", inState);
-                // printPointsToState("OUT", outState);
                 for (Unit succ : graph.getSuccsOf(unit)) {
                     worklist.add(succ);
                 }
@@ -125,11 +125,36 @@ public class AnalysisTransformer_test extends SceneTransformer {
 
         }
         if (isCallee) {
-            runEscapeAnalysis(graph, inMap);
+            runEscapeAnalysis(graph, inMap, isCallee);
+        } else {
+            runEscapeAnalysisForMain(graph, inMap);
         }
     }
 
-    private static void runEscapeAnalysis(UnitGraph graph, Map<Unit, PointsToState> inMap) {
+    private static void runEscapeAnalysisForMain(UnitGraph graph, Map<Unit, PointsToState> inMap) {
+        for (Unit unit : graph) {
+            PointsToState state = inMap.get(unit);
+            if (state == null)
+                continue;
+            if (!(unit instanceof Stmt))
+                continue;
+            Stmt stmt = (Stmt) unit;
+
+            if (!(unit instanceof AssignStmt))
+                continue;
+
+            AssignStmt assignStmt = (AssignStmt) stmt;
+            Value lhs = assignStmt.getLeftOp();
+            Value rhs = assignStmt.getRightOp();
+
+            if (lhs instanceof StaticFieldRef && rhs instanceof Local) {
+                markEscape(state.getVar((Local) rhs));
+            }
+        }
+        propagateEscape(inMap);
+    }
+
+    private static void runEscapeAnalysis(UnitGraph graph, Map<Unit, PointsToState> inMap, boolean isCallee) {
         for (Unit unit : graph) {
             PointsToState state = inMap.get(unit);
             if (state == null)
@@ -160,31 +185,37 @@ public class AnalysisTransformer_test extends SceneTransformer {
                     markEscape(state.getVar((Local) rhs));
                 }
 
-                // escape to heap
-                if (lhs instanceof InstanceFieldRef && rhs instanceof Local) {
-                    Local base = (Local) ((InstanceFieldRef) lhs).getBase();
-                    Local value = (Local) rhs;
-
-                    Set<AllocSite> basePts = state.getVar(base);
-                    if (basePts.contains(UNKNOWN_ALLOC)) {
-                        markEscape(state.getVar(value));
-                    }
-                }
-
-                // store
                 if (lhs instanceof InstanceFieldRef) {
-                    InstanceFieldRef fieldRef = (InstanceFieldRef) lhs;
-                    Local base = (Local) fieldRef.getBase();
+                    Local base = (Local) ((InstanceFieldRef) lhs).getBase();
+
                     Set<AllocSite> basePts = state.getVar(base);
-                    for (AllocSite site : basePts) {
-                        if (!site.equals(UNKNOWN_ALLOC)) {
-                            updateStatus(site, EscapeStatus.ESCAPED);
+                    if (rhs instanceof Local) {
+                        if (basePts.contains(UNKNOWN_ALLOC)) {
+                            markEscape(state.getVar((Local) rhs));
                         }
                     }
+
+                    for (AllocSite site : basePts) {
+                        if (!site.equals(UNKNOWN_ALLOC)) {
+                            if (!allocatedInThisMethod(site, graph))
+                                updateStatus(site, EscapeStatus.ESCAPED);
+                        }
+                    }
+
                 }
+
             }
         }
         propagateEscape(inMap);
+    }
+
+    private static boolean allocatedInThisMethod(AllocSite site, UnitGraph graph) {
+        for (Unit u : graph) {
+            if (u.equals(site.unit)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void propagateEscape(Map<Unit, PointsToState> inMap) {
@@ -257,10 +288,6 @@ public class AnalysisTransformer_test extends SceneTransformer {
 
     private static void processInvokeExpr(PointsToState state, InvokeExpr invokeExpr, Unit callUnit) {
 
-        if (invokeExpr.getMethod().getName().equals("<init>")) {
-            return;
-        }
-
         Iterator<Edge> edges = cg.edgesOutOf(callUnit);
         if (!edges.hasNext())
             return;
@@ -291,6 +318,9 @@ public class AnalysisTransformer_test extends SceneTransformer {
             mergeCalleeState(state, calleeOutState, invokeExpr, target);
         }
 
+        if (invokeExpr.getMethod().getName().equals("<init>")) {
+            return;
+        }
         // receiver
         if (invokeExpr instanceof InstanceInvokeExpr) {
             InstanceInvokeExpr instanceInvoke = (InstanceInvokeExpr) invokeExpr;
@@ -642,7 +672,7 @@ public class AnalysisTransformer_test extends SceneTransformer {
         AllocSite site = totalAllocSites.get(line);
         if (site == null) {
             int id = unit.getJavaSourceStartLineNumber();
-            site = new AllocSite(id, false, id);
+            site = new AllocSite(id, false, id, unit);
             totalAllocSites.put(id, site);
         }
         return site;
@@ -661,10 +691,12 @@ public class AnalysisTransformer_test extends SceneTransformer {
     private static final class AllocSite {
         private final int id;
         private final boolean unknown;
+        private final Unit unit;
         private int lineNumber;
 
-        AllocSite(int id, boolean unknown, int lineNumber) {
+        AllocSite(int id, boolean unknown, int lineNumber, Unit unit) {
             this.id = id;
+            this.unit = unit;
             this.unknown = unknown;
             this.lineNumber = lineNumber;
         }
@@ -812,6 +844,7 @@ public class AnalysisTransformer_test extends SceneTransformer {
                 revVarPts.computeIfAbsent(site, k -> new HashSet<>()).add(local);
             }
         }
+
         private void recordWrite(Local local, int line) {
             lastWriteLine.put(local, line);
         }
