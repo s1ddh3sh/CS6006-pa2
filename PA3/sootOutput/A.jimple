@@ -1,6 +1,6 @@
 class A extends java.lang.Object
 {
-    int x;
+    O f;
 
     void <init>()
     {
@@ -9,6 +9,30 @@ class A extends java.lang.Object
         r0 := @this: A;
 
         specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    void func(O)
+    {
+        A $r1, r3;
+        O $r0, r2;
+
+        r3 := @this: A;
+
+        r2 := @parameter0: O;
+
+        $r0 = new O;
+
+        specialinvoke $r0.<O: void <init>()>();
+
+        $r1 = new A;
+
+        specialinvoke $r1.<A: void <init>()>();
+
+        $r1.<A: O f> = $r0;
+
+        r2.<O: int x> = 10;
 
         return;
     }

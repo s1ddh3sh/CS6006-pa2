@@ -1,5 +1,6 @@
 public class Test extends java.lang.Object
 {
+    static A global;
 
     public void <init>()
     {
@@ -14,52 +15,42 @@ public class Test extends java.lang.Object
 
     public static void main(java.lang.String[])
     {
-        java.io.PrintStream $r1;
-        java.lang.String[] r6;
-        M $r0, $r2, $r4;
-        N $r3;
-        O $r5;
-        int $i0;
+        A $r0, $r2, $r3;
+        java.lang.String[] r5;
+        O $r1, $r4;
 
-        r6 := @parameter0: java.lang.String[];
+        r5 := @parameter0: java.lang.String[];
 
-        $r0 = new M;
+        $r0 = new A;
 
-        specialinvoke $r0.<M: void <init>()>();
+        specialinvoke $r0.<A: void <init>()>();
 
-        $r0.<M: int x> = 8;
+        $r2 = <Test: A global>;
 
-        $r1 = <java.lang.System: java.io.PrintStream out>;
+        $r1 = new O;
 
-        $i0 = $r0.<M: int x>;
+        specialinvoke $r1.<O: void <init>()>();
 
-        virtualinvoke $r1.<java.io.PrintStream: void println(int)>($i0);
+        $r2.<A: O f> = $r1;
 
-        $r2 = new M;
+        $r3 = <Test: A global>;
 
-        specialinvoke $r2.<M: void <init>()>();
+        $r4 = $r3.<A: O f>;
 
-        $r3 = new N;
+        virtualinvoke $r0.<A: void func(O)>($r4);
 
-        specialinvoke $r3.<N: void <init>()>();
+        return;
+    }
 
-        $r2.<M: int x> = 27;
+    static void <clinit>()
+    {
+        A $r0;
 
-        $r2.<M: int y> = 125;
+        $r0 = new A;
 
-        virtualinvoke $r3.<N: void foo(M)>($r2);
+        specialinvoke $r0.<A: void <init>()>();
 
-        $r4 = new M;
-
-        specialinvoke $r4.<M: void <init>()>();
-
-        $r5 = new O;
-
-        specialinvoke $r5.<O: void <init>()>();
-
-        $r4.<M: int x> = 343;
-
-        virtualinvoke $r5.<O: void foo(M)>($r4);
+        <Test: A global> = $r0;
 
         return;
     }

@@ -76,8 +76,8 @@ public class AnalysisTransformer_test extends SceneTransformer {
         if (method.getDeclaringClass().isLibraryClass()) {
             return false;
         }
-        String name = method.getName();
-        return !"<clinit>".equals(name);
+        // String name = method.getName();
+        return true;
     }
 
     private static void runPointsToAnalysis(
@@ -110,9 +110,9 @@ public class AnalysisTransformer_test extends SceneTransformer {
             PointsToState inState = mergePointsTo(graph.getPredsOf(unit), inMap, outMap, visited, unit);
             PointsToState outState = transferPointsTo(unit, inState);
             visited.add(unit);
-            System.out.println("\nUnit: " + unit);
-            printPointsToState("IN", inState);
-            printPointsToState("OUT", outState);
+            // System.out.println("\nUnit: " + unit);
+            // printPointsToState("IN", inState);
+            // printPointsToState("OUT", outState);
             if (!outState.equals(outMap.get(unit))) {
                 inMap.put(unit, inState);
                 outMap.put(unit, outState);
@@ -149,6 +149,24 @@ public class AnalysisTransformer_test extends SceneTransformer {
 
             if (lhs instanceof StaticFieldRef && rhs instanceof Local) {
                 markEscape(state.getVar((Local) rhs));
+            }
+            if (lhs instanceof InstanceFieldRef && rhs instanceof Local) {
+                Local base = (Local) ((InstanceFieldRef) lhs).getBase();
+                Local value = (Local) rhs;
+
+                Set<AllocSite> basePts = state.getVar(base);
+                if (basePts.contains(UNKNOWN_ALLOC)) {
+                    markEscape(state.getVar(value));
+                }
+                for (AllocSite site : basePts) {
+                    if (!site.equals(UNKNOWN_ALLOC)) {
+                        EscapeStatus baseStatus = escapeStatus.getOrDefault(
+                                site, EscapeStatus.LOCAL);
+                        if (baseStatus == EscapeStatus.ESCAPED) {
+                            markEscape(state.getVar(value));
+                        }
+                    }
+                }
             }
         }
         propagateEscape(graph, inMap);
@@ -222,8 +240,8 @@ public class AnalysisTransformer_test extends SceneTransformer {
         Unit lasUnit = graph.getBody().getUnits().getLast();
         PointsToState state = inMap.get(lasUnit);
         // for (PointsToState s : inMap.values()) {
-        //     if (s != null)
-        //         state = s;
+        // if (s != null)
+        // state = s;
         // }
         if (state == null)
             return;

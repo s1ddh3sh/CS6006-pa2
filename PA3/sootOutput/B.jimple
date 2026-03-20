@@ -1,6 +1,7 @@
 class B extends java.lang.Object
 {
     A a;
+    static B global;
 
     void <init>()
     {
@@ -15,11 +16,20 @@ class B extends java.lang.Object
 
     void foo(B)
     {
-        B r0, r1;
+        A $r0;
+        B r1, r2;
 
-        r0 := @this: B;
+        r2 := @this: B;
 
         r1 := @parameter0: B;
+
+        $r0 = new A;
+
+        specialinvoke $r0.<A: void <init>()>();
+
+        r1.<B: A a> = $r0;
+
+        <B: B global> = r1;
 
         return;
     }
